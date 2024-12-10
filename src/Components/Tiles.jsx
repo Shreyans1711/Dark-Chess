@@ -1,4 +1,5 @@
 import React from 'react';
+import Pieces from './Pieces';
 
 const Tiles = ({ r, c }) => {
   const isBlack = (r + c) % 2 === 1;
@@ -9,6 +10,7 @@ const Tiles = ({ r, c }) => {
         isBlack ? 'bg-black text-teal-50' : 'bg-teal-50 text-black'
       }`}
     >
+    <Pieces r = {r} c = {c}/>
     {(c === 0) && (
         <span
           className={`absolute top-1 left-1 text-[8px] sm:text-xs ${
@@ -27,7 +29,8 @@ const Tiles = ({ r, c }) => {
         >
           {letterForCol}
         </span>
-      )}    </div>
+      )}    
+      </div>
   );
 };
 

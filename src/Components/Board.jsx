@@ -13,9 +13,9 @@ const CreateTheBoard = () => {
     }
   }
 };
-
 const Board = () => {
   CreateTheBoard();
+  console.log(array)
   return (
     <div className="grid grid-cols-8 w-[16rem] sm:w-[32rem] h-[16rem] sm:h-[32rem]">
       {array.flat()}
