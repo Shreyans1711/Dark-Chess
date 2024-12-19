@@ -1,4 +1,5 @@
 import Image from "next/image";
+
 import bb from "./public/assets/bb.png";
 import br from "./public/assets/br.png";
 import bn from "./public/assets/bn.png";
@@ -72,36 +73,4 @@ export const showPiece = (row, col) => {
     return (
       <Image src={piece} fill = {true} alt={alternate} />
     )
-}
-
-export const createBoard = () => {
-    const board = [];
-    for (let row = 0; row < 8; row++) {
-    const currentRow = [];
-    for (let col = 0; col < 8; col++) {
-        let rank = row + 1;
-        let file = String.fromCharCode(97 + col);
-        currentRow.push(
-            <div key={8 * row + col} className={`chess-square ${   (col + row) % 2 === 1 ? "bg-[#739552]" : "bg-[#ebecd0]" } w-[5rem] h-[5rem] flex justify-center items-end relative`}>
-            {row === 7 && 
-            <div className={`mb-1 absolute bottom-0 right-2 ${(col + row) % 2 === 0 ? "text-[#739552]" : "text-[#ebecd0]"}`}>
-                {file}
-            </div>
-            }
-            {col === 0 && 
-            <div className={`mb-1 absolute top-1 left-1 ${  (col + row) % 2 === 0 ? "text-[#739552]" : "text-[#ebecd0]"}`}>
-                {rank}
-            </div>
-            }
-            {showPiece(row, col)}
-        </div>
-        );
-    }
-    board.push(
-        <div key={row} className="flex">
-        {currentRow}
-        </div>
-    );
-    }
-    return board;
 };
