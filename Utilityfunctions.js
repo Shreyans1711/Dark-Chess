@@ -29,7 +29,7 @@ export const showPiece = (row, col) => {
     alternate = row === 1 ? "blackPawn" : "whitePawn";
   }
   return piece ? (
-    <Image src={piece} fill={true} alt={alternate} className="cursor-move" />
+    <Image src={piece} fill={true} alt={alternate} className="cursor-pointer" />
   ) : null;
 };
 

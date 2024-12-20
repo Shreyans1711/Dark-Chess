@@ -42,7 +42,7 @@ export default function Home() {
           </div>
           )}
           {cell.piece && (
-            <div draggable onDragStart={() => handleDragStart(rowIndex, colIndex)} className="cursor-move">
+            <div draggable onDragStart={() => handleDragStart(rowIndex, colIndex)} className="cursor-pointer">
               {cell.piece}
             </div>
           )}
