@@ -1,13 +1,12 @@
 // Show the piece on the board
 export const showPiece = (row, col) => {
-  let piece = null, alternate = "";
+  let piece = null;
   if (row === 0 || row === 7) {
     const isWhite = row === 7;
     const pieces = isWhite
       ? ["wr1", "wn1", "wb1", "wq", "wk", "wb2", "wn2", "wr2"]
       : ["br1", "bn1", "bb1", "bq", "bk", "bb2", "bn2", "br2"];
     piece = pieces[col];
-    alternate = isWhite ? "white" : "black";
   }
   if (row === 1 || row === 6) {
     const isWhite = row === 6;
@@ -15,9 +14,8 @@ export const showPiece = (row, col) => {
       ? ['wp1', 'wp2', 'wp3', 'wp4', 'wp5', 'wp6', 'wp7', 'wp8']
       : ['bp1', 'bp2', 'bp3', 'bp4', 'bp5', 'bp6', 'bp7', 'bp8'];
     piece = pieces[col];
-    alternate = isWhite ? "white" : "black";
   }
-  return { piece, alternate };
+  return piece;
 };
 
 // Create the initial board data
@@ -27,8 +25,7 @@ export const createBoardData = () => {
     const currentRow = [];
     for (let col = 0; col < 8; col++) {
       currentRow.push({
-        piece: showPiece(row, col).piece,
-        alternate: showPiece(row, col).alternate,
+        piece: showPiece(row, col),
         file: String.fromCharCode(97 + col),
         rank: 8 - row,
       });
@@ -50,7 +47,7 @@ export const getRookMoves = (row, col, board) => {
       if (!board[newRow][newCol].piece) {
         moves.push([newRow, newCol]);
       } else {
-        if (board[newRow][newCol].alternate !== board[row][col].alternate) {
+        if (board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
           moves.push([newRow, newCol]);
         }
         break;
@@ -72,7 +69,7 @@ export const getKnightMoves = (row, col, board) => {
   for (const [dx, dy] of directions) {
     let newRow = row + dx, newCol = col + dy;
     if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
-      if (!board[newRow][newCol].piece || board[newRow][newCol].alternate !== board[row][col].alternate) {
+      if (!board[newRow][newCol].piece || board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
         moves.push([newRow, newCol]);
       }
     }
@@ -92,7 +89,7 @@ export const getBishopMoves = (row, col, board) => {
       if (!board[newRow][newCol].piece) {
         moves.push([newRow, newCol]);
       } else {
-        if (board[newRow][newCol].alternate !== board[row][col].alternate) {
+        if (board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
           moves.push([newRow, newCol]);
         }
         break;
@@ -119,7 +116,7 @@ export const getKingMoves = (row, col, board) => {
   for (const [dx, dy] of directions) {
     let newRow = row + dx, newCol = col + dy;
     if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
-      if (!board[newRow][newCol].piece || board[newRow][newCol].alternate !== board[row][col].alternate) {
+      if (!board[newRow][newCol].piece || board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
         moves.push([newRow, newCol]);
       }
     }
@@ -130,9 +127,10 @@ export const getKingMoves = (row, col, board) => {
 // Pawn
 export const getPawnMoves = (row, col, board) => {
   const moves = [];
-  const alternate = board[row][col].alternate;
-  const direction = alternate === 'white' ? -1 : 1;
-  const startRow = alternate === 'white' ? 6 : 1;
+  const alternate = board[row][col].piece[0];
+
+  const direction = alternate === 'w' ? -1 : 1;
+  const startRow = alternate === 'w' ? 6 : 1;
   const newRow = row + direction;
 
   if (!board[newRow][col].piece) {
@@ -144,7 +142,7 @@ export const getPawnMoves = (row, col, board) => {
 
   for (let dx of [-1, 1]) {
     let captureCol = col + dx;
-    if (captureCol >= 0 && captureCol < 8 && board[newRow][captureCol]?.piece && board[newRow][captureCol].alternate !== alternate) {
+    if (captureCol >= 0 && captureCol < 8 && board[newRow][captureCol]?.piece && board[newRow][captureCol].piece[0] !== alternate) {
       moves.push([newRow, captureCol]);
     }
   }
@@ -156,8 +154,8 @@ export const getAllMoves = (board, currentPlayer) => {
 
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
-      const { piece, alternate } = board[row][col];
-      if (!piece || alternate !== currentPlayer) continue;
+      const piece = board[row][col].piece;
+      if (!piece || piece[0] !== currentPlayer) continue;
 
       let possibleMoves = [];
       switch (piece) {
@@ -200,6 +198,5 @@ export const getAllMoves = (board, currentPlayer) => {
       }
     }
   }
-
   return moves;
 };

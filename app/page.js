@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createBoardData, getAllMoves } from "../Utilityfunctions";
 import Image from "next/image";
 
@@ -41,14 +41,13 @@ const pieces = {
 export default function Home() {
   const [chessBoard, setChessBoard] = useState(createBoardData());
   const [draggedInfo, setDraggedInfo] = useState(null);
-  const [currentTurn, setCurrentTurn] = useState("white");
+  const [currentTurn, setCurrentTurn] = useState("w");
 
   // Finding all Possible moves in the position for the current turn player
-  let movesPossible = getAllMoves(chessBoard, currentTurn);
-  console.log(movesPossible);
-  
+  const movesPossible = getAllMoves(chessBoard, currentTurn)
+  console.log(movesPossible)
   const isCurrentPlayerPiece = (piece) => {
-    return piece && piece.startsWith(currentTurn === "white" ? "w" : "b");
+    return piece && piece.startsWith(currentTurn === "w" ? "w" : "b");
   };
 
   const handleDragStart = (row, col) => {
@@ -64,30 +63,23 @@ export default function Home() {
   const handleDrop = (targetRow, targetCol) => {
     if (!draggedInfo) return;
     const { piece, position } = draggedInfo;
-
-    console.log(draggedInfo)
     if (position.row === targetRow && position.col === targetCol) return;
-    console.log(movesPossible[piece])
-    // const key = `${piece}_${position.row}_${position.col}`;
-    // const validMove = movesPossible[key]?.find(move => {
-    //   return move[0] === targetRow && move[1] === targetCol;
-    // });
 
-    // if (validMove) {
-    //   console.log('Valid move:', validMove);
-    // } else {
-    //   console.warn('Invalid move or piece not found in movesPossible:', key);
-    // }
+    // console.log(movesPossible)
 
-    
-    // if (!validMove) return;
+    const key = `${piece}_${position.row}_${position.col}`;
+
+    const validMove = movesPossible[key]?.find(move => {
+      return move[0] === targetRow && move[1] === targetCol;
+    });    
+    if (!validMove) return;
 
     const newBoard = [...chessBoard];
     newBoard[position.row][position.col].piece = null;
     newBoard[targetRow][targetCol].piece = piece;
     setChessBoard(newBoard);
     setDraggedInfo(null);
-    setCurrentTurn(currentTurn === "white" ? "black" : "white");
+    setCurrentTurn(currentTurn === "w" ? "b" : "w");
   };
 
   const renderBoard = () =>
@@ -116,21 +108,20 @@ export default function Home() {
                 onDragStart={() => handleDragStart(rowIndex, colIndex)}
                 className="cursor-pointer"
               >
-                <Image src={pieces[cell.piece]} alt={cell.alternate || cell.piece} fill={true} />
+                <Image src={pieces[cell.piece]} alt={cell.piece[0]} fill={true} />
               </div>
             )}
           </div>
         ))}
       </div>
     ));
-
   return (
     <div className="w-screen h-screen flex justify-center items-center gap-10">
       <div>{renderBoard()}</div>
       <button
         onClick={() => {
           setChessBoard(createBoardData());
-          setCurrentTurn("white");
+          setCurrentTurn("w");
         }}
         type="button"
         className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
