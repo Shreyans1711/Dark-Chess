@@ -42,9 +42,10 @@ export default function Home() {
   const [chessBoard, setChessBoard] = useState(createBoardData());
   const [draggedInfo, setDraggedInfo] = useState(null);
   const [currentTurn, setCurrentTurn] = useState("w");
+  const [lastMove, setlastMove] = useState({initialRow : null, initialCol : null, finalRow : null, finalCol : null});
 
   // Finding all Possible moves in the position for the current turn player
-  const movesPossible = useRef(getAllMoves(chessBoard, currentTurn));
+  const movesPossible = useRef(getAllMoves(chessBoard, currentTurn, lastMove));
   const isCurrentPlayerPiece = (piece) => {
     return piece && piece.startsWith(currentTurn === "w" ? "w" : "b");
   };
@@ -62,27 +63,32 @@ export default function Home() {
   const handleDragOver = (e) => {
     e.preventDefault();
   };
-
-  const handleDrop = (targetRow, targetCol) => {
-    if (!draggedInfo) return;
-    const { piece, position } = draggedInfo;
-    if (position.row === targetRow && position.col === targetCol) return;
-
-    // console.log(movesPossible.current)
-
-    const key = `${piece}_${position.row}_${position.col}`;
-
-    const validMove = movesPossible.current[key]?.find((move) => {
-      return move[0] === targetRow && move[1] === targetCol;
-    });
-    if (!validMove) return;
-
-    const newBoard = [...chessBoard];
+  const handleCapture = (position, newBoard) => {
     newBoard[position.row][position.col].piece = null;
+  }
+  const handleMove = (piece, position, targetRow, targetCol) => {
+    const newBoard = [...chessBoard];
+    if (newBoard[position.row][position.col].piece) {
+      handleCapture(position, newBoard);
+    }
     newBoard[targetRow][targetCol].piece = piece;
     setChessBoard(newBoard);
     setDraggedInfo(null);
     setCurrentTurn(currentTurn === "w" ? "b" : "w");
+  }
+  const handleDrop = (targetRow, targetCol) => {
+    if (!draggedInfo) return;
+    const { piece, position } = draggedInfo;
+    if (position.row === targetRow && position.col === targetCol) return;
+    
+    const key = `${piece}_${position.row}_${position.col}`;
+    
+    const validMove = movesPossible.current[key]?.find((move) => {
+      return move[0] === targetRow && move[1] === targetCol;
+    });
+    if (!validMove) return;
+    handleMove(piece, position, targetRow, targetCol);
+    setlastMove({initialRow : position.row, initialCol : position.col, finalRow : targetRow, finalCol : targetCol});
   };
 
   const renderBoard = () =>

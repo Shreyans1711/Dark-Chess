@@ -125,31 +125,59 @@ export const getKingMoves = (row, col, board) => {
 };
 
 // Pawn
-export const getPawnMoves = (row, col, board) => {
+export const getPawnMoves = (row, col, board, lastMove) => {
   const moves = [];
-  const alternate = board[row][col].piece[0];
-
+  const alternate = board[row][col].piece[0]; // 'w' for white, 'b' for black
   const direction = alternate === 'w' ? -1 : 1;
   const startRow = alternate === 'w' ? 6 : 1;
   const newRow = row + direction;
 
+  // Normal forward moves
   if (!board[newRow][col].piece) {
     moves.push([newRow, col]);
+    // First double-move for pawns
     if (row === startRow && !board[newRow + direction][col].piece) {
       moves.push([newRow + direction, col]);
     }
   }
 
+  // Capturing moves
   for (let dx of [-1, 1]) {
-    let captureCol = col + dx;
-    if (captureCol >= 0 && captureCol < 8 && board[newRow][captureCol]?.piece && board[newRow][captureCol].piece[0] !== alternate) {
+    const captureCol = col + dx;
+    if (
+      captureCol >= 0 &&
+      captureCol < 8 &&
+      board[newRow][captureCol]?.piece &&
+      board[newRow][captureCol].piece[0] !== alternate
+    ) {
       moves.push([newRow, captureCol]);
+    }
+  }
+
+  // En-passant capturing moves
+  for (let dx of [-1, 1]) {
+    const captureCol = col + dx;
+    if (
+      captureCol >= 0 &&
+      captureCol < 8 &&
+      board[row][captureCol]?.piece && // The pawn to be captured
+      board[row][captureCol].piece[0] !== alternate && // It's an opponent's piece
+      board[row][captureCol].piece[1] === 'p' && // It's a pawn
+      lastMove &&
+      lastMove.finalRow === row && // The pawn just moved to the same row
+      lastMove.finalCol === captureCol && // The pawn moved to this column
+      lastMove.initialRow === (startRow === 1 ? 6 : 1) // The pawn started from its initial position
+    ) {
+      moves.push([newRow, captureCol]); // Add the en passant move
+      console.log("En passant move detected!");
     }
   }
 
   return moves;
 };
-export const getAllMoves = (board, currentPlayer) => {
+
+
+export const getAllMoves = (board, currentPlayer, lastMove) => {
   const moves = {};
 
   for (let row = 0; row < 8; row++) {
@@ -189,7 +217,7 @@ export const getAllMoves = (board, currentPlayer) => {
         case 'wp5': case 'wp6': case 'wp7': case 'wp8':
         case 'bp1': case 'bp2': case 'bp3': case 'bp4':
         case 'bp5': case 'bp6': case 'bp7': case 'bp8':
-          possibleMoves = getPawnMoves(row, col, board);
+          possibleMoves = getPawnMoves(row, col, board, lastMove);
           break;
       }
 
