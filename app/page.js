@@ -4,38 +4,38 @@ import { createBoardData, getAllMoves } from "../Utilityfunctions";
 import Image from "next/image";
 
 const pieces = {
-  "bb1": "/assets/bb.png",
-  "bb2": "/assets/bb.png",
-  "br1": "/assets/br.png",
-  "br2": "/assets/br.png",
-  "bn1": "/assets/bn.png",
-  "bn2": "/assets/bn.png",
-  "bq": "/assets/bq.png",
-  "bk": "/assets/bk.png",
-  "bp1": "/assets/bp.png",
-  "bp2": "/assets/bp.png",
-  "bp3": "/assets/bp.png",
-  "bp4": "/assets/bp.png",
-  "bp5": "/assets/bp.png",
-  "bp6": "/assets/bp.png",
-  "bp7": "/assets/bp.png",
-  "bp8": "/assets/bp.png",
-  "wb1": "/assets/wb.png",
-  "wb2": "/assets/wb.png",
-  "wr1": "/assets/wr.png",
-  "wr2": "/assets/wr.png",
-  "wn1": "/assets/wn.png",
-  "wn2": "/assets/wn.png",
-  "wq": "/assets/wq.png",
-  "wk": "/assets/wk.png",
-  "wp1": "/assets/wp.png",
-  "wp2": "/assets/wp.png",
-  "wp3": "/assets/wp.png",
-  "wp4": "/assets/wp.png",
-  "wp5": "/assets/wp.png",
-  "wp6": "/assets/wp.png",
-  "wp7": "/assets/wp.png",
-  "wp8": "/assets/wp.png",
+  bb1: "/assets/bb.png",
+  bb2: "/assets/bb.png",
+  br1: "/assets/br.png",
+  br2: "/assets/br.png",
+  bn1: "/assets/bn.png",
+  bn2: "/assets/bn.png",
+  bq: "/assets/bq.png",
+  bk: "/assets/bk.png",
+  bp1: "/assets/bp.png",
+  bp2: "/assets/bp.png",
+  bp3: "/assets/bp.png",
+  bp4: "/assets/bp.png",
+  bp5: "/assets/bp.png",
+  bp6: "/assets/bp.png",
+  bp7: "/assets/bp.png",
+  bp8: "/assets/bp.png",
+  wb1: "/assets/wb.png",
+  wb2: "/assets/wb.png",
+  wr1: "/assets/wr.png",
+  wr2: "/assets/wr.png",
+  wn1: "/assets/wn.png",
+  wn2: "/assets/wn.png",
+  wq: "/assets/wq.png",
+  wk: "/assets/wk.png",
+  wp1: "/assets/wp.png",
+  wp2: "/assets/wp.png",
+  wp3: "/assets/wp.png",
+  wp4: "/assets/wp.png",
+  wp5: "/assets/wp.png",
+  wp6: "/assets/wp.png",
+  wp7: "/assets/wp.png",
+  wp8: "/assets/wp.png",
 };
 
 export default function Home() {
@@ -44,11 +44,14 @@ export default function Home() {
   const [currentTurn, setCurrentTurn] = useState("w");
 
   // Finding all Possible moves in the position for the current turn player
-  const movesPossible = getAllMoves(chessBoard, currentTurn)
-  console.log(movesPossible)
+  const movesPossible = useRef(getAllMoves(chessBoard, currentTurn));
   const isCurrentPlayerPiece = (piece) => {
     return piece && piece.startsWith(currentTurn === "w" ? "w" : "b");
   };
+  useEffect(() => {
+    movesPossible.current = getAllMoves(chessBoard, currentTurn);
+    console.log(movesPossible.current);
+  }, [chessBoard, currentTurn]);
 
   const handleDragStart = (row, col) => {
     const piece = chessBoard[row][col].piece;
@@ -65,13 +68,13 @@ export default function Home() {
     const { piece, position } = draggedInfo;
     if (position.row === targetRow && position.col === targetCol) return;
 
-    // console.log(movesPossible)
+    // console.log(movesPossible.current)
 
     const key = `${piece}_${position.row}_${position.col}`;
 
-    const validMove = movesPossible[key]?.find(move => {
+    const validMove = movesPossible.current[key]?.find((move) => {
       return move[0] === targetRow && move[1] === targetCol;
-    });    
+    });
     if (!validMove) return;
 
     const newBoard = [...chessBoard];
@@ -88,17 +91,31 @@ export default function Home() {
         {row.map((cell, colIndex) => (
           <div
             key={`${rowIndex}-${colIndex}`}
-            className={`chess-square ${(rowIndex + colIndex) % 2 === 1 ? "bg-[#739552]" : "bg-[#ebecd0]"} w-[5rem] h-[5rem] flex justify-center items-end relative`}
+            className={`chess-square ${
+              (rowIndex + colIndex) % 2 === 1 ? "bg-[#739552]" : "bg-[#ebecd0]"
+            } w-[5rem] h-[5rem] flex justify-center items-end relative`}
             onDragOver={handleDragOver}
             onDrop={() => handleDrop(rowIndex, colIndex)}
           >
             {rowIndex === 7 && (
-              <div className={`mb-1 absolute bottom-0 right-2 ${(rowIndex + colIndex) % 2 === 0 ? "text-[#739552]" : "text-[#ebecd0]"}`}>
+              <div
+                className={`mb-1 absolute bottom-0 right-2 ${
+                  (rowIndex + colIndex) % 2 === 0
+                    ? "text-[#739552]"
+                    : "text-[#ebecd0]"
+                }`}
+              >
                 {cell.file}
               </div>
             )}
             {colIndex === 0 && (
-              <div className={`mb-1 absolute top-1 left-1 ${(rowIndex + colIndex) % 2 === 0 ? "text-[#739552]" : "text-[#ebecd0]"}`}>
+              <div
+                className={`mb-1 absolute top-1 left-1 ${
+                  (rowIndex + colIndex) % 2 === 0
+                    ? "text-[#739552]"
+                    : "text-[#ebecd0]"
+                }`}
+              >
                 {cell.rank}
               </div>
             )}
@@ -108,7 +125,11 @@ export default function Home() {
                 onDragStart={() => handleDragStart(rowIndex, colIndex)}
                 className="cursor-pointer"
               >
-                <Image src={pieces[cell.piece]} alt={cell.piece[0]} fill={true} />
+                <Image
+                  src={pieces[cell.piece]}
+                  alt={cell.piece[0]}
+                  fill={true}
+                />
               </div>
             )}
           </div>
