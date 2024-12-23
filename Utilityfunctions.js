@@ -36,7 +36,7 @@ export const createBoardData = () => {
 };
 
 // Rooks
-export const getRookMoves = (row, col, board) => {
+export const getRookMoves = (row, col, board, checkflag = {}) => {
   const moves = [];
   const directions = [
     [0, 1], [0, -1], [1, 0], [-1, 0]
@@ -49,6 +49,9 @@ export const getRookMoves = (row, col, board) => {
       } else {
         if (board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
           moves.push([newRow, newCol]);
+          if(board[newRow][newCol]?.piece && board[newRow][newCol].piece[1] === 'k' && checkflag) {
+            checkflag.current = true;
+          }
         }
         break;
       }
@@ -60,7 +63,7 @@ export const getRookMoves = (row, col, board) => {
 };
 
 // Knights
-export const getKnightMoves = (row, col, board) => {
+export const getKnightMoves = (row, col, board, checkflag) => {
   const moves = [];
   const directions = [
     [1, 2], [2, 1], [-1, 2], [-2, 1],
@@ -71,6 +74,9 @@ export const getKnightMoves = (row, col, board) => {
     if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
       if (!board[newRow][newCol].piece || board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
         moves.push([newRow, newCol]);
+        if(board[newRow][newCol]?.piece && board[newRow][newCol].piece[1] === 'k' && checkflag) {
+          checkflag.current = true;
+        }
       }
     }
   }
@@ -78,7 +84,7 @@ export const getKnightMoves = (row, col, board) => {
 };
 
 // Bishops
-export const getBishopMoves = (row, col, board) => {
+export const getBishopMoves = (row, col, board, checkflag = {}) => {
   const moves = [];
   const directions = [
     [1, 1], [1, -1], [-1, 1], [-1, -1]
@@ -91,6 +97,9 @@ export const getBishopMoves = (row, col, board) => {
       } else {
         if (board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
           moves.push([newRow, newCol]);
+          if(board[newRow][newCol]?.piece && board[newRow][newCol].piece[1] === 'k' && checkflag) {
+            checkflag.current = true;
+          }
         }
         break;
       }
@@ -102,8 +111,8 @@ export const getBishopMoves = (row, col, board) => {
 };
 
 // Queen
-export const getQueenMoves = (row, col, board) => {
-  return [...getRookMoves(row, col, board), ...getBishopMoves(row, col, board)];
+export const getQueenMoves = (row, col, board, checkflag = {} ) => {
+  return [...getRookMoves(row, col, board, checkflag), ...getBishopMoves(row, col, board, checkflag)];
 };
 
 // King
@@ -125,7 +134,7 @@ export const getKingMoves = (row, col, board) => {
 };
 
 // Pawn
-export const getPawnMoves = (row, col, board, lastMove) => {
+export const getPawnMoves = (row, col, board, lastMove, checkflag) => {
   const moves = [];
   const alternate = board[row][col].piece[0]; // 'w' for white, 'b' for black
   const direction = alternate === 'w' ? -1 : 1;
@@ -151,6 +160,9 @@ export const getPawnMoves = (row, col, board, lastMove) => {
       board[newRow][captureCol].piece[0] !== alternate
     ) {
       moves.push([newRow, captureCol]);
+      if(board[newRow][captureCol]?.piece && board[newRow][captureCol].piece[1] === 'k' && checkflag) {
+        checkflag.current = true;
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { createBoardData, getAllMoves } from "../Utilityfunctions";
+import { createBoardData, getAllMoves, getBishopMoves, getRookMoves, getQueenMoves, getKnightMoves, getPawnMoves } from "../Utilityfunctions";
 import Image from "next/image";
 
 const pieces = {
@@ -43,7 +43,7 @@ export default function Home() {
   const [draggedInfo, setDraggedInfo] = useState(null);
   const [currentTurn, setCurrentTurn] = useState("w");
   const [lastMove, setlastMove] = useState({initialRow : null, initialCol : null, finalRow : null, finalCol : null});
-  const [check, setCheck] = useState(false)
+  const isChecked = useRef(false);
 
   // Finding all Possible moves in the position for the current turn player
   const movesPossible = useRef(getAllMoves(chessBoard, currentTurn, lastMove));
@@ -51,8 +51,33 @@ export default function Home() {
     return piece && piece.startsWith(currentTurn === "w" ? "w" : "b");
   };
   useEffect(() => {
+    if(lastMove.finalCol) {
+      // console.log("piece:", chessBoard[lastMove.finalRow][lastMove.finalCol].piece);
+      const lastPiece = chessBoard[lastMove.finalRow][lastMove.finalCol].piece;
+      switch (lastPiece[1]) {
+        case 'p':
+          getPawnMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, lastMove, isChecked);
+          break;
+        case 'r':
+          getRookMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, isChecked);
+          break;
+        case 'n':
+          getKnightMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, isChecked);
+          break;
+        case 'b':
+          getBishopMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, isChecked);
+          break;
+        case 'q':
+          getQueenMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, isChecked);
+          break;
+        default:
+          break;
+      }
+    }
+    console.log("checked: ", isChecked.current);
     movesPossible.current = getAllMoves(chessBoard, currentTurn, lastMove);
-    console.log(movesPossible.current);
+    // console.log(movesPossible.current);
+    isChecked.current = false;
   }, [chessBoard, currentTurn]);
 
   const handleDragStart = (row, col) => {
@@ -75,7 +100,6 @@ export default function Home() {
     if (newBoard[targetRow][targetCol].piece) {
       handleCapture(targetRow, targetCol, newBoard);
     } else {
-      console.log('Hi')
       if (piece[1] === 'p' && Math.abs(targetRow - position.row) === 1 && Math.abs(targetCol - position.col) === 1) {
         handleCapture(position.row, targetCol, newBoard);
       }
@@ -96,9 +120,9 @@ export default function Home() {
       return move[0] === targetRow && move[1] === targetCol;
     });
     if (!validMove) return;
-    handleMove(piece, position, targetRow, targetCol);
-    setlastMove({initialRow : position.row, initialCol : position.col, finalRow : targetRow, finalCol : targetCol});
     
+    setlastMove({initialRow : position.row, initialCol : position.col, finalRow : targetRow, finalCol : targetCol});
+    handleMove(piece, position, targetRow, targetCol);
   };
 
   const renderBoard = () =>
