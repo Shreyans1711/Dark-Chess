@@ -160,15 +160,15 @@ export const getPawnMoves = (row, col, board, lastMove) => {
     if (
       captureCol >= 0 &&
       captureCol < 8 &&
-      board[row][captureCol]?.piece && // The pawn to be captured
-      board[row][captureCol].piece[0] !== alternate && // It's an opponent's piece
-      board[row][captureCol].piece[1] === 'p' && // It's a pawn
+      board[row][captureCol]?.piece &&
+      board[row][captureCol].piece[0] !== alternate &&
+      board[row][captureCol].piece[1] === 'p' &&
       lastMove &&
-      lastMove.finalRow === row && // The pawn just moved to the same row
-      lastMove.finalCol === captureCol && // The pawn moved to this column
-      lastMove.initialRow === (startRow === 1 ? 6 : 1) // The pawn started from its initial position
+      lastMove.finalRow === row &&
+      lastMove.finalCol === captureCol &&
+      lastMove.initialRow === (startRow === 1 ? 6 : 1)
     ) {
-      moves.push([newRow, captureCol]); // Add the en passant move
+      moves.push([newRow, captureCol]);
       console.log("En passant move detected!");
     }
   }

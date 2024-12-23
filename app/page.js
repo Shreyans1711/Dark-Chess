@@ -43,6 +43,7 @@ export default function Home() {
   const [draggedInfo, setDraggedInfo] = useState(null);
   const [currentTurn, setCurrentTurn] = useState("w");
   const [lastMove, setlastMove] = useState({initialRow : null, initialCol : null, finalRow : null, finalCol : null});
+  const [check, setCheck] = useState(false)
 
   // Finding all Possible moves in the position for the current turn player
   const movesPossible = useRef(getAllMoves(chessBoard, currentTurn, lastMove));
@@ -50,7 +51,7 @@ export default function Home() {
     return piece && piece.startsWith(currentTurn === "w" ? "w" : "b");
   };
   useEffect(() => {
-    movesPossible.current = getAllMoves(chessBoard, currentTurn);
+    movesPossible.current = getAllMoves(chessBoard, currentTurn, lastMove);
     console.log(movesPossible.current);
   }, [chessBoard, currentTurn]);
 
@@ -63,13 +64,21 @@ export default function Home() {
   const handleDragOver = (e) => {
     e.preventDefault();
   };
-  const handleCapture = (position, newBoard) => {
-    newBoard[position.row][position.col].piece = null;
+  const handleCapture = (row, col, newBoard) => {
+    newBoard[row][col].piece = null;
   }
   const handleMove = (piece, position, targetRow, targetCol) => {
     const newBoard = [...chessBoard];
     if (newBoard[position.row][position.col].piece) {
-      handleCapture(position, newBoard);
+      handleCapture(position.row, position.col, newBoard);
+    }
+    if (newBoard[targetRow][targetCol].piece) {
+      handleCapture(targetRow, targetCol, newBoard);
+    } else {
+      console.log('Hi')
+      if (piece[1] === 'p' && Math.abs(targetRow - position.row) === 1 && Math.abs(targetCol - position.col) === 1) {
+        handleCapture(position.row, targetCol, newBoard);
+      }
     }
     newBoard[targetRow][targetCol].piece = piece;
     setChessBoard(newBoard);
@@ -89,6 +98,7 @@ export default function Home() {
     if (!validMove) return;
     handleMove(piece, position, targetRow, targetCol);
     setlastMove({initialRow : position.row, initialCol : position.col, finalRow : targetRow, finalCol : targetCol});
+    
   };
 
   const renderBoard = () =>
