@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { createBoardData, getAllMoves, getBishopMoves, getRookMoves, getQueenMoves, getKnightMoves, getPawnMoves } from "../Utilityfunctions";
+import { createBoardData, getAllMoves, isTheSquareSafe } from "../Utilityfunctions";
 import Image from "next/image";
 
 const pieces = {
@@ -43,7 +43,6 @@ export default function Home() {
   const [draggedInfo, setDraggedInfo] = useState(null);
   const [currentTurn, setCurrentTurn] = useState("w");
   const [lastMove, setlastMove] = useState({initialRow : null, initialCol : null, finalRow : null, finalCol : null});
-  const isChecked = useRef(false);
 
   // Finding all Possible moves in the position for the current turn player
   const movesPossible = useRef(getAllMoves(chessBoard, currentTurn, lastMove));
@@ -51,35 +50,10 @@ export default function Home() {
     return piece && piece.startsWith(currentTurn === "w" ? "w" : "b");
   };
   useEffect(() => {
-    if(lastMove.finalCol) {
-      // console.log("piece:", chessBoard[lastMove.finalRow][lastMove.finalCol].piece);
-      const lastPiece = chessBoard[lastMove.finalRow][lastMove.finalCol].piece;
-      switch (lastPiece[1]) {
-        case 'p':
-          getPawnMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, lastMove, isChecked);
-          break;
-        case 'r':
-          getRookMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, isChecked);
-          break;
-        case 'n':
-          getKnightMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, isChecked);
-          break;
-        case 'b':
-          getBishopMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, isChecked);
-          break;
-        case 'q':
-          getQueenMoves(lastMove.finalRow, lastMove.finalCol, chessBoard, isChecked);
-          break;
-        default:
-          break;
-      }
-    }
-    console.log("checked: ", isChecked.current);
     movesPossible.current = getAllMoves(chessBoard, currentTurn, lastMove);
-    // console.log(movesPossible.current);
-    isChecked.current = false;
+    console.log(movesPossible.current);
   }, [chessBoard, currentTurn]);
-
+  console.log(isTheSquareSafe(6, 3, chessBoard, currentTurn))
   const handleDragStart = (row, col) => {
     const piece = chessBoard[row][col].piece;
     if (!isCurrentPlayerPiece(piece)) return;
