@@ -1,3 +1,10 @@
+function gcd(a, b) {
+  if (b === 0) {
+    return a;
+  }
+  return gcd(b, a % b);
+}
+
 // Show the piece on the board
 export const showPiece = (row, col) => {
   let piece = null;
@@ -36,8 +43,63 @@ export const createBoardData = () => {
 };
 
 // Rooks
-export const getRookMoves = (row, col, board, checkflag = {}) => {
+export const getRookMoves = (row, col, board,  currentPlayer) => {
   const moves = [];
+  if (isThePiecePinnedFromDiagonal(board, row, col, currentPlayer)) {
+    return moves;
+  }
+  if (isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
+    const kingSquare = kingsPosition(board, currentPlayer);
+  
+    // Horizontal Pin (Same Row as King)
+    if (row === kingSquare.row) {
+      if (col > kingSquare.col) {
+        // Rook is to the right of the king
+        for (let i = kingSquare.col + 1; i < 8; i++) {
+          if (i === col) continue; // Skip the rook's own position
+          if (board[row][i].piece) {
+            break; // Stop if a piece blocks the path
+          }
+          moves.push([row, i]);
+        }
+      } else {
+        // Rook is to the left of the king
+        for (let i = kingSquare.col - 1; i >= 0; i--) {
+          if (i === col) continue; // Skip the rook's own position
+          if (board[row][i].piece) {
+            break; // Stop if a piece blocks the path
+          }
+          moves.push([row, i]);
+        }
+      }
+    } 
+    
+    // Vertical Pin (Same Column as King)
+    else if (col === kingSquare.col) {
+      if (row > kingSquare.row) {
+        // Rook is below the king
+        for (let i = kingSquare.row + 1; i < 8; i++) {
+          if (i === row) continue; // Skip the rook's own position
+          if (board[i][col].piece) {
+            break; // Stop if a piece blocks the path
+          }
+          moves.push([i, col]);
+        }
+      } else {
+        // Rook is above the king
+        for (let i = kingSquare.row - 1; i >= 0; i--) {
+          if (i === row) continue; // Skip the rook's own position
+          if (board[i][col].piece) {
+            break; // Stop if a piece blocks the path
+          }
+          moves.push([i, col]);
+        }
+      }
+    }
+  
+    // If the rook is pinned along lines but not strictly row or column, no valid moves.
+    return moves;
+  }
   const directions = [
     [0, 1], [0, -1], [1, 0], [-1, 0]
   ];
@@ -49,9 +111,6 @@ export const getRookMoves = (row, col, board, checkflag = {}) => {
       } else {
         if (board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
           moves.push([newRow, newCol]);
-          if (board[newRow][newCol]?.piece && board[newRow][newCol].piece[1] === 'k' && checkflag) {
-            checkflag.current = true;
-          }
         }
         break;
       }
@@ -63,8 +122,11 @@ export const getRookMoves = (row, col, board, checkflag = {}) => {
 };
 
 // Knights
-export const getKnightMoves = (row, col, board, checkflag) => {
+export const getKnightMoves = (row, col, board, currentPlayer) => {
   const moves = [];
+  if (isThePiecePinnedFromDiagonal(board, row, col, currentPlayer) || isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
+    return moves;
+  }
   const directions = [
     [1, 2], [2, 1], [-1, 2], [-2, 1],
     [1, -2], [2, -1], [-1, -2], [-2, -1]
@@ -74,9 +136,6 @@ export const getKnightMoves = (row, col, board, checkflag) => {
     if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
       if (!board[newRow][newCol].piece || board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
         moves.push([newRow, newCol]);
-        if (board[newRow][newCol]?.piece && board[newRow][newCol].piece[1] === 'k' && checkflag) {
-          checkflag.current = true;
-        }
       }
     }
   }
@@ -84,11 +143,44 @@ export const getKnightMoves = (row, col, board, checkflag) => {
 };
 
 // Bishops
-export const getBishopMoves = (row, col, board, checkflag = {}) => {
+export const getBishopMoves = (row, col, board, currentPlayer) => {
   const moves = [];
+  if (isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
+    return moves;
+  } 
   const directions = [
     [1, 1], [1, -1], [-1, 1], [-1, -1]
   ];
+  if (isThePiecePinnedFromDiagonal(board, row, col, currentPlayer)) {
+    const kingSquare = kingsPosition(board, currentPlayer);
+
+    const a = row - kingSquare.row;
+    const b = col - kingSquare.col;
+    for (const [dx, dy] of directions) {
+      // Check if the current direction aligns with the pin direction
+      if (dx * b !== dy * a) {
+        continue;
+      }
+      
+      let newRow = row + dx;
+      let newCol = col + dy;
+      
+      while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+        if (!board[newRow][newCol].piece) {
+          moves.push([newRow, newCol]);
+        } else {
+          if (board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
+            moves.push([newRow, newCol]);
+          }
+          break;
+        }
+        newRow += dx;
+        newCol += dy;
+      }
+    }
+    
+    return moves;
+  }
   for (const [dx, dy] of directions) {
     let newRow = row + dx, newCol = col + dy;
     while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
@@ -97,9 +189,6 @@ export const getBishopMoves = (row, col, board, checkflag = {}) => {
       } else {
         if (board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
           moves.push([newRow, newCol]);
-          if (board[newRow][newCol]?.piece && board[newRow][newCol].piece[1] === 'k' && checkflag) {
-            checkflag.current = true;
-          }
         }
         break;
       }
@@ -111,8 +200,94 @@ export const getBishopMoves = (row, col, board, checkflag = {}) => {
 };
 
 // Queen
-export const getQueenMoves = (row, col, board, checkflag = {}) => {
-  return [...getRookMoves(row, col, board, checkflag), ...getBishopMoves(row, col, board, checkflag)];
+export const getQueenMoves = (row, col, board, currentPlayer) => {
+  const moves = [];
+  if (isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
+    const kingSquare = kingsPosition(board, currentPlayer);
+  
+    // Horizontal Pin (Same Row as King)
+    if (row === kingSquare.row) {
+      if (col > kingSquare.col) {
+        // Rook is to the right of the king
+        for (let i = kingSquare.col + 1; i < 8; i++) {
+          if (i === col) continue; // Skip the rook's own position
+          if (board[row][i].piece) {
+            break; // Stop if a piece blocks the path
+          }
+          moves.push([row, i]);
+        }
+      } else {
+        // Rook is to the left of the king
+        for (let i = kingSquare.col - 1; i >= 0; i--) {
+          if (i === col) continue; // Skip the rook's own position
+          if (board[row][i].piece) {
+            break; // Stop if a piece blocks the path
+          }
+          moves.push([row, i]);
+        }
+      }
+    } 
+    
+    // Vertical Pin (Same Column as King)
+    else if (col === kingSquare.col) {
+      if (row > kingSquare.row) {
+        // Rook is below the king
+        for (let i = kingSquare.row + 1; i < 8; i++) {
+          if (i === row) continue; // Skip the rook's own position
+          if (board[i][col].piece) {
+            break; // Stop if a piece blocks the path
+          }
+          moves.push([i, col]);
+        }
+      } else {
+        // Rook is above the king
+        for (let i = kingSquare.row - 1; i >= 0; i--) {
+          if (i === row) continue; // Skip the rook's own position
+          if (board[i][col].piece) {
+            break; // Stop if a piece blocks the path
+          }
+          moves.push([i, col]);
+        }
+      }
+    }
+  
+    // If the rook is pinned along lines but not strictly row or column, no valid moves.
+    return moves;
+  }
+  if (isThePiecePinnedFromDiagonal(board, row, col, currentPlayer)) {
+    const kingSquare = kingsPosition(board, currentPlayer);
+
+    const a = row - kingSquare.row;
+    const b = col - kingSquare.col;
+    const directions = [
+      [1, 1], [1, -1], [-1, 1], [-1, -1]
+    ];
+    for (const [dx, dy] of directions) {
+      // Check if the current direction aligns with the pin direction
+      if (dx * b !== dy * a) {
+        continue;
+      }
+      
+      let newRow = row + dx;
+      let newCol = col + dy;
+      
+      while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+        if (!board[newRow][newCol].piece) {
+          moves.push([newRow, newCol]);
+        } else {
+          if (board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
+            moves.push([newRow, newCol]);
+          }
+          break;
+        }
+        newRow += dx;
+        newCol += dy;
+      }
+    }
+    
+    return moves;
+  }
+  return [...getRookMoves(row, col, board, currentPlayer), ...getBishopMoves(row, col, board, currentPlayer)];
 };
 
 // King
@@ -136,19 +311,30 @@ export const getKingMoves = (row, col, board, currentPlayer) => {
 };
 
 // Pawn
-export const getPawnMoves = (row, col, board, lastMove, checkflag) => {
+export const getPawnMoves = (row, col, board, lastMove, currentPlayer) => {
   const moves = [];
+
+  // Check if the pawn is pinned along lines
+  if (isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
+    return moves;
+  }
+  
+  // Check if the pawn is pinned along diagonals
+  const pinnedDirection = isThePiecePinnedFromDiagonal(board, row, col, currentPlayer);
+  
   const alternate = board[row][col].piece[0]; // 'w' for white, 'b' for black
   const direction = alternate === 'w' ? -1 : 1;
   const startRow = alternate === 'w' ? 6 : 1;
   const newRow = row + direction;
 
   // Normal forward moves
-  if (!board[newRow][col].piece) {
-    moves.push([newRow, col]);
-    // First double-move for pawns
-    if (row === startRow && !board[newRow + direction][col].piece) {
-      moves.push([newRow + direction, col]);
+  if (!pinnedDirection || pinnedDirection[0] === direction && pinnedDirection[1] === 0) {
+    if (!board[newRow][col].piece) {
+      moves.push([newRow, col]);
+      // First double-move for pawns
+      if (row === startRow && !board[newRow + direction][col].piece) {
+        moves.push([newRow + direction, col]);
+      }
     }
   }
 
@@ -156,15 +342,13 @@ export const getPawnMoves = (row, col, board, lastMove, checkflag) => {
   for (let dx of [-1, 1]) {
     const captureCol = col + dx;
     if (
+      (!pinnedDirection || (pinnedDirection[0] === direction && pinnedDirection[1] === dx)) &&
       captureCol >= 0 &&
       captureCol < 8 &&
       board[newRow][captureCol]?.piece &&
       board[newRow][captureCol].piece[0] !== alternate
     ) {
       moves.push([newRow, captureCol]);
-      if (board[newRow][captureCol]?.piece && board[newRow][captureCol].piece[1] === 'k' && checkflag) {
-        checkflag.current = true;
-      }
     }
   }
 
@@ -172,6 +356,7 @@ export const getPawnMoves = (row, col, board, lastMove, checkflag) => {
   for (let dx of [-1, 1]) {
     const captureCol = col + dx;
     if (
+      (!pinnedDirection || (pinnedDirection[0] === direction && pinnedDirection[1] === dx)) &&
       captureCol >= 0 &&
       captureCol < 8 &&
       board[row][captureCol]?.piece &&
@@ -306,7 +491,7 @@ export const getAllMoves = (board, currentPlayer, lastMove) => {
             let possibleMoves = [];
             switch (board[i][j].piece[1]) {
               case 'r': // Rook
-                const possibleMovesByTheRook = getRookMoves(i, j, board);
+                const possibleMovesByTheRook = getRookMoves(i, j, board,currentPlayer);
                 for (let l = 0; l < possibleMovesByTheRook.length; l++) {
                   if (squaresAttackedByTheCheckingPiece.some(
                     (square) => square[0] === possibleMovesByTheRook[l][0] && square[1] === possibleMovesByTheRook[l][1]
@@ -317,7 +502,7 @@ export const getAllMoves = (board, currentPlayer, lastMove) => {
                 break;
 
               case 'n': // Knight
-                const possibleMovesByTheKnight = getKnightMoves(i, j, board);
+                const possibleMovesByTheKnight = getKnightMoves(i, j, board, currentPlayer);
                 for (let l = 0; l < possibleMovesByTheKnight.length; l++) {
                   if (squaresAttackedByTheCheckingPiece.some(
                     (square) => square[0] === possibleMovesByTheKnight[l][0] && square[1] === possibleMovesByTheKnight[l][1]
@@ -328,7 +513,7 @@ export const getAllMoves = (board, currentPlayer, lastMove) => {
                 break;
 
               case 'b': // Bishop
-                const possibleMovesByTheBishop = getBishopMoves(i, j, board);
+                const possibleMovesByTheBishop = getBishopMoves(i, j, board, currentPlayer);
                 for (let l = 0; l < possibleMovesByTheBishop.length; l++) {
                   if (squaresAttackedByTheCheckingPiece.some(
                     (square) => square[0] === possibleMovesByTheBishop[l][0] && square[1] === possibleMovesByTheBishop[l][1]
@@ -339,7 +524,7 @@ export const getAllMoves = (board, currentPlayer, lastMove) => {
                 break;
 
               case 'q': // Queen
-                const possibleMovesByTheQueen = getQueenMoves(i, j, board);
+                const possibleMovesByTheQueen = getQueenMoves(i, j, board, currentPlayer);
                 for (let l = 0; l < possibleMovesByTheQueen.length; l++) {
                   if (squaresAttackedByTheCheckingPiece.some(
                     (square) => square[0] === possibleMovesByTheQueen[l][0] && square[1] === possibleMovesByTheQueen[l][1]
@@ -350,7 +535,7 @@ export const getAllMoves = (board, currentPlayer, lastMove) => {
                 break;
 
               case 'p': // Pawn
-                const possibleMovesByThePawn = getPawnMoves(i, j, board);
+                const possibleMovesByThePawn = getPawnMoves(i, j, board,lastMove, currentPlayer);
                 for (let l = 0; l < possibleMovesByThePawn.length; l++) {
                   if (squaresAttackedByTheCheckingPiece.some(
                     (square) => square[0] === possibleMovesByThePawn[l][0] && square[1] === possibleMovesByThePawn[l][1]
@@ -383,22 +568,22 @@ export const getAllMoves = (board, currentPlayer, lastMove) => {
       switch (piece) {
         // Rooks
         case 'wr1': case 'wr2': case 'br1': case 'br2':
-          possibleMoves = getRookMoves(row, col, board);
+          possibleMoves = getRookMoves(row, col, board, currentPlayer);
           break;
 
         // Knights
         case 'wn1': case 'wn2': case 'bn1': case 'bn2':
-          possibleMoves = getKnightMoves(row, col, board);
+          possibleMoves = getKnightMoves(row, col, board, currentPlayer);
           break;
 
         // Bishops
         case 'wb1': case 'wb2': case 'bb1': case 'bb2':
-          possibleMoves = getBishopMoves(row, col, board);
+          possibleMoves = getBishopMoves(row, col, board, currentPlayer);
           break;
 
         // Queens
         case 'wq': case 'bq':
-          possibleMoves = getQueenMoves(row, col, board);
+          possibleMoves = getQueenMoves(row, col, board, currentPlayer);
           break;
 
         // Kings
@@ -411,7 +596,7 @@ export const getAllMoves = (board, currentPlayer, lastMove) => {
         case 'wp5': case 'wp6': case 'wp7': case 'wp8':
         case 'bp1': case 'bp2': case 'bp3': case 'bp4':
         case 'bp5': case 'bp6': case 'bp7': case 'bp8':
-          possibleMoves = getPawnMoves(row, col, board, lastMove);
+          possibleMoves = getPawnMoves(row, col, board, lastMove, currentPlayer);
           break;
       }
 
@@ -437,8 +622,9 @@ export const isTheSquareSafe = (row, col, board, currentPlayer) => {
       }
     }
   }
-  return pieces; // No opponent piece can attack this square
+  return pieces; // Opponent pieces that can attack this square
 };
+
 
 // Helper function to determine if a piece can attack a specific square
 const canPieceAttackSquare = (piece, fromRow, fromCol, toRow, toCol, board) => {
@@ -474,14 +660,14 @@ const canRookAttack = (fromRow, fromCol, toRow, toCol, board) => {
   if (fromRow === toRow) {
     const step = fromCol < toCol ? 1 : -1;
     for (let col = fromCol + step; col !== toCol; col += step) {
-      if (board[fromRow][col].piece) return false;
+      if (board[fromRow][col] && board[fromRow][col].piece) return false;
     }
     return true;
   }
   if (fromCol === toCol) {
     const step = fromRow < toRow ? 1 : -1;
     for (let row = fromRow + step; row !== toRow; row += step) {
-      if (board[row][fromCol].piece) return false;
+      if (board[row][fromCol] && board[row][fromCol].piece) return false;
     }
     return true;
   }
@@ -503,15 +689,26 @@ const canBishopAttack = (fromRow, fromCol, toRow, toCol, board) => {
     let row = fromRow + rowStep;
     let col = fromCol + colStep;
 
-    while (row !== toRow && col !== toCol) {
-      if (board[row][col].piece) return false;
+    while (row !== toRow || col !== toCol) {
+      // Ensure we are within bounds
+      if (row < 0 || row >= 8 || col < 0 || col >= 8) {
+        return false; // Out of bounds, invalid move
+      }
+
+      // Check if there's a blocking piece
+      if (board[row][col] && board[row][col].piece) {
+        return false; // Path is blocked
+      }
+
       row += rowStep;
       col += colStep;
     }
-    return true;
+
+    return true; // No blocking pieces, valid bishop attack path
   }
-  return false;
+  return false; // Not a diagonal move
 };
+
 
 // Queen attack logic (combines rook and bishop logic)
 const canQueenAttack = (fromRow, fromCol, toRow, toCol, board) => {
@@ -542,3 +739,106 @@ const kingsPosition = (board, currentPlayer) => {
   }
   return kingSquare;
 }
+
+const isThePiecePinnedFromDiagonal = (board, row, col, currentPlayer) => {
+    const kingSquare = kingsPosition(board, currentPlayer);
+    
+    // Check if the target piece is on a diagonal with the king
+    const isOnDiagonal = Math.abs(row - kingSquare.row) === Math.abs(col - kingSquare.col);
+    
+    if (!isOnDiagonal) {
+      return false; // If not on the same diagonal, it cannot be pinned by a bishop
+    }
+    
+    // Find the diagonal basis
+
+    const xofdia = row - kingSquare.row;
+    const yofdia = col - kingSquare.col;
+  
+    const g =  gcd(Math.abs(xofdia), Math.abs(yofdia));
+
+    const [dx, dy] = [xofdia / g, yofdia / g];
+
+    console.log({dx, dy})
+    // Check if something is in between
+    let x = row, y = col;
+
+    while (x !== kingSquare.row && y !== kingSquare.col) {
+      console.log({x, y});
+      x -= dx;
+      y -= dy;
+
+      if (board[x][y].piece && board[x][y].piece[1] !== 'k' && board[x][y].piece[0] !== currentPlayer) {
+        return false;
+      }
+    }
+
+    // Check if there is a queen or a bishop to pin the piece
+    x = row, y = col;
+    console.log({x, y});
+
+    while (x >= 0 && x < 8 && y >= 0 && y < 8) {
+      x += dx;
+      y += dy;
+      
+      if (board[x][y] && board[x][y].piece) {
+        if (board[x][y].piece[0] === currentPlayer) {
+          return false;
+        } else if (board[x][y].piece[1] === 'b' || board[x][y].piece[1] === 'q') {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+    return false;
+};
+const isThePiecePinnedFromLines = (board, row, col, currentPlayer) => {
+  const kingSquare = kingsPosition(board, currentPlayer);
+  
+  // Check if the target piece is in line with the king horizontally or vertically
+  const isInSameRow = row === kingSquare.row;
+  const isInSameCol = col === kingSquare.col;
+  
+  if (!isInSameRow && !isInSameCol) {
+    return false; // If not in the same row or column, it cannot be pinned by a rook
+  }
+
+  // Define the directions for vertical and horizontal lines
+  const directions = [
+    { row: 0, col: 1 }, // Right (same row, increment column)
+    { row: 0, col: -1 }, // Left (same row, decrement column)
+    { row: 1, col: 0 }, // Down (increment row, same column)
+    { row: -1, col: 0 } // Up (decrement row, same column)
+  ];
+
+  // Iterate through each direction (row/col)
+  for (const direction of directions) {
+    let currentRow = row + direction.row;
+    let currentCol = col + direction.col;
+
+    while (currentRow >= 0 && currentRow < 8 && currentCol >= 0 && currentCol < 8) {
+      const currentSquare = board[currentRow][currentCol];
+      
+      // Check if the square contains a piece
+      if (currentSquare.piece) {
+        if (currentSquare.piece[0] !== currentPlayer) {
+          // If there is an enemy piece on the line, check if it blocks the king
+          if (currentSquare.piece[1] === 'r' || currentSquare.piece[1] === 'q') {
+            // If a rook or queen is in line with the king, check if it's blocking the line
+            if (currentRow === kingSquare.row || currentCol === kingSquare.col) {
+              // This piece is pinning the piece at (row, col)
+              return true;
+            }
+          }
+        }
+        break; // Stop if we encounter a piece (rook or something else), as it could block the pinning line
+      }
+      
+      currentRow += direction.row;
+      currentCol += direction.col;
+    }
+  }
+
+  return false; // If no rook or queen is found blocking the line between the piece and the king
+};
