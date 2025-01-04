@@ -42,13 +42,11 @@ export const createBoardData = () => {
   return board;
 };
 
-export const getAllMoves = (board, currentPlayer, lastMove) => {
+export const getAllMoves = (board, currentPlayer, lastMove, AllMovesTillNow) => {
   const moves = {};
   let squaresAttackedByTheCheckingPiece = [];
   const kingSquare = kingsPosition(board, currentPlayer);
-  console.log(kingSquare)
   let piecesAttackingKing = isTheSquareSafe(kingSquare.row, kingSquare.col, board, currentPlayer);
-  console.log(piecesAttackingKing)
   if (piecesAttackingKing.length !== 0) {
     moves[`${board[kingSquare.row][kingSquare.col].piece}_${kingSquare.row}_${kingSquare.col}`] = getKingMoves(kingSquare.row, kingSquare.col, board, currentPlayer);
     if (piecesAttackingKing.length === 1) {
@@ -254,7 +252,7 @@ export const getAllMoves = (board, currentPlayer, lastMove) => {
 
         // Kings
         case 'wk': case 'bk':
-          possibleMoves = getKingMoves(row, col, board, currentPlayer);
+          possibleMoves = getKingMoves(row, col, board, currentPlayer, AllMovesTillNow);
           break;
 
         // Pawns
@@ -310,4 +308,8 @@ const canPieceAttackSquare = (piece, fromRow, fromCol, toRow, toCol, board) => {
     default:
       return false;
   }
+};
+
+export const hasAPieceMoved = (piece, AllMovesTillNow) => {
+  return AllMovesTillNow.some((move) => move.piece === piece);
 };

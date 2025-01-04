@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { createBoardData, getAllMoves, isTheSquareSafe } from "../Utilityfunctions";
+import { createBoardData, getAllMoves } from "../Utilityfunctions";
 import Image from "next/image";
 
 const pieces = {
@@ -38,6 +38,8 @@ const pieces = {
   wp8: "/assets/wp.png",
 };
 
+let AllMovesTillNow = [];
+
 export default function Home() {
   const [chessBoard, setChessBoard] = useState(createBoardData());
   const [draggedInfo, setDraggedInfo] = useState(null);
@@ -45,15 +47,13 @@ export default function Home() {
   const [lastMove, setlastMove] = useState({initialRow : null, initialCol : null, finalRow : null, finalCol : null});
 
   // Finding all Possible moves in the position for the current turn player
-  const movesPossible = useRef(getAllMoves(chessBoard, currentTurn, lastMove));
+  const movesPossible = useRef(getAllMoves(chessBoard, currentTurn, lastMove, AllMovesTillNow));
   const isCurrentPlayerPiece = (piece) => {
     return piece && piece.startsWith(currentTurn === "w" ? "w" : "b");
   };
   useEffect(() => {
-    movesPossible.current = getAllMoves(chessBoard, currentTurn, lastMove);
-    console.log(movesPossible.current);
+    movesPossible.current = getAllMoves(chessBoard, currentTurn, lastMove, AllMovesTillNow);
   }, [chessBoard, currentTurn]);
-  console.log(isTheSquareSafe(6, 3, chessBoard, currentTurn))
   const handleDragStart = (row, col) => {
     const piece = chessBoard[row][col].piece;
     if (!isCurrentPlayerPiece(piece)) return;
@@ -76,6 +76,14 @@ export default function Home() {
     } else {
       if (piece[1] === 'p' && Math.abs(targetRow - position.row) === 1 && Math.abs(targetCol - position.col) === 1) {
         handleCapture(position.row, targetCol, newBoard);
+      } else if (piece[1] === 'k' && Math.abs(targetCol - position.col) === 2) {
+        if (targetCol === 6) {
+          handleCapture(position.row, 7, newBoard);
+          newBoard[position.row][5] = {piece : currentTurn + "r2", file: String.fromCharCode(97 + 5), rank: 8 - targetRow}
+        } else {
+          handleCapture(position.row, 0, newBoard);
+          newBoard[position.row][3] = {piece : currentTurn + "r1", file: String.fromCharCode(97 + 3), rank: 8 - targetRow}
+        }
       }
     }
     newBoard[targetRow][targetCol].piece = piece;
@@ -96,6 +104,14 @@ export default function Home() {
     if (!validMove) return;
     
     setlastMove({initialRow : position.row, initialCol : position.col, finalRow : targetRow, finalCol : targetCol});
+    AllMovesTillNow.push({
+      piece: piece,
+      initialRow: position.row,
+      initialCol: position.col,
+      finalRow: targetRow,
+      finalCol: targetCol,
+    });
+    console.log(AllMovesTillNow)
     handleMove(piece, position, targetRow, targetCol);
   };
 
