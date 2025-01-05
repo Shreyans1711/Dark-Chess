@@ -21,12 +21,10 @@ export const isThePiecePinnedFromDiagonal = (board, row, col, currentPlayer) => 
 
     const [dx, dy] = [xofdia / g, yofdia / g];
 
-    console.log({dx, dy})
     // Check if something is in between
     let x = row, y = col;
 
     while (x !== kingSquare.row && y !== kingSquare.col) {
-      console.log({x, y});
       x -= dx;
       y -= dy;
 
@@ -37,7 +35,6 @@ export const isThePiecePinnedFromDiagonal = (board, row, col, currentPlayer) => 
 
     // Check if there is a queen or a bishop to pin the piece
     x = row, y = col;
-    console.log({x, y});
 
     while (x >= 0 && x < 8 && y >= 0 && y < 8) {
       x += dx;

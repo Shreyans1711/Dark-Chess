@@ -57,7 +57,7 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
 
     // Short Castle (King-Side)
     let shortCastle = true;
-    if (hasAPieceMoved(currentPlayer + 'r2', AllMovesTillNow)) shortCastle = false;
+    if (hasAPieceMoved(currentPlayer + 'r', AllMovesTillNow)) shortCastle = false;
     if (
         board[kingRow][5].piece || 
         board[kingRow][6].piece || 
@@ -70,7 +70,7 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
 
     // Long Castle (Queen-Side)
     let longCastle = true;
-    if (hasAPieceMoved(currentPlayer + 'r1', AllMovesTillNow)) longCastle = false;
+    if (hasAPieceMoved(currentPlayer + 'r', AllMovesTillNow)) longCastle = false;
     if (
         board[kingRow][1].piece || 
         board[kingRow][2].piece || 

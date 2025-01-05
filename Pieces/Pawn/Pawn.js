@@ -15,7 +15,6 @@ export const getPawnMoves = (row, col, board, lastMove, currentPlayer) => {
     const direction = alternate === 'w' ? -1 : 1;
     const startRow = alternate === 'w' ? 6 : 1;
     const newRow = row + direction;
-
     // Normal forward moves
     if (!pinnedDirection || pinnedDirection[0] === direction && pinnedDirection[1] === 0) {
         if (!board[newRow][col].piece) {
@@ -60,7 +59,6 @@ export const getPawnMoves = (row, col, board, lastMove, currentPlayer) => {
             console.log("En passant move detected!");
         }
     }
-
     return moves;
 };
 

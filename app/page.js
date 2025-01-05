@@ -4,38 +4,18 @@ import { createBoardData, getAllMoves } from "../Utilityfunctions";
 import Image from "next/image";
 
 const pieces = {
-  bb1: "/assets/bb.png",
-  bb2: "/assets/bb.png",
-  br1: "/assets/br.png",
-  br2: "/assets/br.png",
-  bn1: "/assets/bn.png",
-  bn2: "/assets/bn.png",
+  bb: "/assets/bb.png",
+  br: "/assets/br.png",
+  bn: "/assets/bn.png",
   bq: "/assets/bq.png",
   bk: "/assets/bk.png",
-  bp1: "/assets/bp.png",
-  bp2: "/assets/bp.png",
-  bp3: "/assets/bp.png",
-  bp4: "/assets/bp.png",
-  bp5: "/assets/bp.png",
-  bp6: "/assets/bp.png",
-  bp7: "/assets/bp.png",
-  bp8: "/assets/bp.png",
-  wb1: "/assets/wb.png",
-  wb2: "/assets/wb.png",
-  wr1: "/assets/wr.png",
-  wr2: "/assets/wr.png",
-  wn1: "/assets/wn.png",
-  wn2: "/assets/wn.png",
+  bp: "/assets/bp.png",
+  wb: "/assets/wb.png",
+  wr: "/assets/wr.png",
+  wn: "/assets/wn.png",
   wq: "/assets/wq.png",
   wk: "/assets/wk.png",
-  wp1: "/assets/wp.png",
-  wp2: "/assets/wp.png",
-  wp3: "/assets/wp.png",
-  wp4: "/assets/wp.png",
-  wp5: "/assets/wp.png",
-  wp6: "/assets/wp.png",
-  wp7: "/assets/wp.png",
-  wp8: "/assets/wp.png",
+  wp: "/assets/wp.png",
 };
 
 let AllMovesTillNow = [];
@@ -49,13 +29,17 @@ export default function Home() {
   // Finding all Possible moves in the position for the current turn player
   const movesPossible = useRef(getAllMoves(chessBoard, currentTurn, lastMove, AllMovesTillNow));
   const isCurrentPlayerPiece = (piece) => {
-    return piece && piece.startsWith(currentTurn === "w" ? "w" : "b");
+    if (!piece) return false;  // Check if piece exists
+    const pieceStr = piece.piece || piece; // If piece is an object, use its 'piece' property as a string
+    return pieceStr.startsWith(currentTurn === "w" ? "w" : "b");
   };
+  
   useEffect(() => {
     movesPossible.current = getAllMoves(chessBoard, currentTurn, lastMove, AllMovesTillNow);
+    console.log(movesPossible.current)
   }, [chessBoard, currentTurn]);
   const handleDragStart = (row, col) => {
-    const piece = chessBoard[row][col].piece;
+    const piece = chessBoard[row][col];
     if (!isCurrentPlayerPiece(piece)) return;
     setDraggedInfo({ piece, position: { row, col } });
   };
@@ -68,25 +52,31 @@ export default function Home() {
   }
   const handleMove = (piece, position, targetRow, targetCol) => {
     const newBoard = [...chessBoard];
+    let movingPiece = null;
     if (newBoard[position.row][position.col].piece) {
+      console.log(piece)
+      movingPiece = piece.piece;
       handleCapture(position.row, position.col, newBoard);
+      console.log(piece)
     }
     if (newBoard[targetRow][targetCol].piece) {
       handleCapture(targetRow, targetCol, newBoard);
     } else {
-      if (piece[1] === 'p' && Math.abs(targetRow - position.row) === 1 && Math.abs(targetCol - position.col) === 1) {
+      console.log('Hi')
+      if (movingPiece[1] === 'p' && Math.abs(targetRow - position.row) === 1 && Math.abs(targetCol - position.col) === 1) {
         handleCapture(position.row, targetCol, newBoard);
-      } else if (piece[1] === 'k' && Math.abs(targetCol - position.col) === 2) {
+      } else if (movingPiece[1] === 'k' && Math.abs(targetCol - position.col) === 2) {
         if (targetCol === 6) {
           handleCapture(position.row, 7, newBoard);
-          newBoard[position.row][5] = {piece : currentTurn + "r2", file: String.fromCharCode(97 + 5), rank: 8 - targetRow}
-        } else {
+          newBoard[position.row][5] = {piece : currentTurn + "r", file: String.fromCharCode(97 + 5), rank: 8 - targetRow}
+        } else if (targetCol === 2) {
           handleCapture(position.row, 0, newBoard);
-          newBoard[position.row][3] = {piece : currentTurn + "r1", file: String.fromCharCode(97 + 3), rank: 8 - targetRow}
+          newBoard[position.row][3] = {piece : currentTurn + "r", file: String.fromCharCode(97 + 3), rank: 8 - targetRow}
         }
       }
     }
-    newBoard[targetRow][targetCol].piece = piece;
+    console.log(piece)
+    newBoard[targetRow][targetCol].piece = movingPiece;
     setChessBoard(newBoard);
     setDraggedInfo(null);
     setCurrentTurn(currentTurn === "w" ? "b" : "w");
@@ -96,22 +86,24 @@ export default function Home() {
     const { piece, position } = draggedInfo;
     if (position.row === targetRow && position.col === targetCol) return;
     
-    const key = `${piece}_${position.row}_${position.col}`;
-    
+    const key = `${piece.piece}_${position.row}_${position.col}`;
+    console.log(key)
     const validMove = movesPossible.current[key]?.find((move) => {
       return move[0] === targetRow && move[1] === targetCol;
     });
-    if (!validMove) return;
     
+    if (!validMove) return;
+    console.log(piece)
     setlastMove({initialRow : position.row, initialCol : position.col, finalRow : targetRow, finalCol : targetCol});
     AllMovesTillNow.push({
-      piece: piece,
+      piece: piece.piece,
+      id : piece.id,
       initialRow: position.row,
       initialCol: position.col,
       finalRow: targetRow,
       finalCol: targetCol,
     });
-    console.log(AllMovesTillNow)
+    console.log(piece)
     handleMove(piece, position, targetRow, targetCol);
   };
 

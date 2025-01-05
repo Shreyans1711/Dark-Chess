@@ -5,22 +5,37 @@ import { getKnightMoves, canKnightAttack } from "./Pieces/Knight/Knight";
 import { getQueenMoves, canQueenAttack } from "./Pieces/Queen/Queen";
 import { getPawnMoves, canPawnAttack } from "./Pieces/Pawn/Pawn";
 
+let piecesName = {
+  'wr' : ['wr', 'wr'],
+  'wn' : ['wn', 'wn'],
+  'wb' : ['wb', 'wb'],
+  'wk' : ['wk'],
+  'wq' : ['wq'],
+  'wp' : ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+  'br' : ['br', 'br'],
+  'bn' : ['bn', 'bn'],
+  'bb' : ['bb', 'bb'],
+  'bk' : ['bk'],
+  'bq' : ['bq'],
+  'bp' : ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+}
+
 // Show the piece on the board
 export const showPiece = (row, col) => {
   let piece = null;
   if (row === 0 || row === 7) {
     const isWhite = row === 7;
     const pieces = isWhite
-      ? ["wr1", "wn1", "wb1", "wq", "wk", "wb2", "wn2", "wr2"]
-      : ["br1", "bn1", "bb1", "bq", "bk", "bb2", "bn2", "br2"];
+      ? [piecesName['wr'][0], piecesName['wn'][0], piecesName['wb'][0], piecesName['wq'][0], piecesName['wk'][0], piecesName['wb'][1], piecesName['wn'][1], piecesName['wr'][1]]
+      : [piecesName['br'][0], piecesName['bn'][0], piecesName['bb'][0], piecesName['bq'][0], piecesName['bk'][0], piecesName['bb'][1], piecesName['bn'][1], piecesName['br'][1]];
     piece = pieces[col];
   }
   if (row === 1 || row === 6) {
     const isWhite = row === 6;
     const pieces = isWhite
-      ? ['wp1', 'wp2', 'wp3', 'wp4', 'wp5', 'wp6', 'wp7', 'wp8']
-      : ['bp1', 'bp2', 'bp3', 'bp4', 'bp5', 'bp6', 'bp7', 'bp8'];
-    piece = pieces[col];
+    ? [piecesName['wp'][0], piecesName['wp'][1], piecesName['wp'][2], piecesName['wp'][3], piecesName['wp'][4], piecesName['wp'][5], piecesName['wp'][6], piecesName['wp'][7]]
+    : [piecesName['bp'][0], piecesName['bp'][1], piecesName['bp'][2], piecesName['bp'][3], piecesName['bp'][4], piecesName['bp'][5], piecesName['bp'][6], piecesName['bp'][7]];
+  piece = pieces[col];
   }
   return piece;
 };
@@ -35,6 +50,7 @@ export const createBoardData = () => {
         piece: showPiece(row, col),
         file: String.fromCharCode(97 + col),
         rank: 8 - row,
+        id : `${String.fromCharCode(97 + col)}_${8 - row}`,
       });
     }
     board.push(currentRow);
@@ -222,26 +238,25 @@ export const getAllMoves = (board, currentPlayer, lastMove, AllMovesTillNow) => 
     return moves;
   }
 
-
+  console.log(board)
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       const piece = board[row][col].piece;
       if (!piece || piece[0] !== currentPlayer) continue;
-
       let possibleMoves = [];
       switch (piece) {
         // Rooks
-        case 'wr1': case 'wr2': case 'br1': case 'br2':
+        case 'wr': case 'br':
           possibleMoves = getRookMoves(row, col, board, currentPlayer);
           break;
 
         // Knights
-        case 'wn1': case 'wn2': case 'bn1': case 'bn2':
+        case 'wn': case 'bn':
           possibleMoves = getKnightMoves(row, col, board, currentPlayer);
           break;
 
         // Bishops
-        case 'wb1': case 'wb2': case 'bb1': case 'bb2':
+        case 'wb': case 'bb':
           possibleMoves = getBishopMoves(row, col, board, currentPlayer);
           break;
 
@@ -256,10 +271,7 @@ export const getAllMoves = (board, currentPlayer, lastMove, AllMovesTillNow) => 
           break;
 
         // Pawns
-        case 'wp1': case 'wp2': case 'wp3': case 'wp4':
-        case 'wp5': case 'wp6': case 'wp7': case 'wp8':
-        case 'bp1': case 'bp2': case 'bp3': case 'bp4':
-        case 'bp5': case 'bp6': case 'bp7': case 'bp8':
+        case 'wp':case 'bp':
           possibleMoves = getPawnMoves(row, col, board, lastMove, currentPlayer);
           break;
       }
@@ -311,5 +323,9 @@ const canPieceAttackSquare = (piece, fromRow, fromCol, toRow, toCol, board) => {
 };
 
 export const hasAPieceMoved = (piece, AllMovesTillNow) => {
-  return AllMovesTillNow.some((move) => move.piece === piece);
+  if (!Array.isArray(AllMovesTillNow)) {
+    console.warn('AllMovesTillNow is not an array:', AllMovesTillNow);
+    return false;
+  }
+  return AllMovesTillNow.some((move) => move.id === piece.id);
 };
