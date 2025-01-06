@@ -3,55 +3,58 @@ import { kingsPosition } from "@/Pieces/King/King";
 function gcd(a, b) {if (b === 0) { return a; } return gcd(b, a % b);}
 
 export const isThePiecePinnedFromDiagonal = (board, row, col, currentPlayer) => {
-    const kingSquare = kingsPosition(board, currentPlayer);
-    
-    // Check if the target piece is on a diagonal with the king
-    const isOnDiagonal = Math.abs(row - kingSquare.row) === Math.abs(col - kingSquare.col);
-    
-    if (!isOnDiagonal) {
-      return false; // If not on the same diagonal, it cannot be pinned by a bishop
-    }
-    
-    // Find the diagonal basis
-
-    const xofdia = row - kingSquare.row;
-    const yofdia = col - kingSquare.col;
+  const kingSquare = kingsPosition(board, currentPlayer);
   
-    const g =  gcd(Math.abs(xofdia), Math.abs(yofdia));
+  // Check if the target piece is on a diagonal with the king
+  const isOnDiagonal = Math.abs(row - kingSquare.row) === Math.abs(col - kingSquare.col);
+  if (!isOnDiagonal) {
+      return false; // Not on the same diagonal
+  }
+  
+  // Find the diagonal direction
+  const xofdia = row - kingSquare.row;
+  const yofdia = col - kingSquare.col;
+  const g = gcd(Math.abs(xofdia), Math.abs(yofdia));
+  const [dx, dy] = [xofdia / g, yofdia / g];
 
-    const [dx, dy] = [xofdia / g, yofdia / g];
-
-    // Check if something is in between
-    let x = row, y = col;
-
-    while (x !== kingSquare.row && y !== kingSquare.col) {
+  // Check if something is in between the piece and the king
+  let x = row, y = col;
+  while (x !== kingSquare.row || y !== kingSquare.col) {
       x -= dx;
       y -= dy;
 
-      if (board[x][y].piece && board[x][y].piece[1] !== 'k' && board[x][y].piece[0] !== currentPlayer) {
-        return false;
+      if (x < 0 || x >= 8 || y < 0 || y >= 8) break; // Prevent out-of-bounds access
+
+      if (board[x][y]?.piece) {
+          if (board[x][y].piece[1] !== 'k' && board[x][y].piece[0] !== currentPlayer) {
+              return false; // Another piece blocking the diagonal
+          }
       }
-    }
+  }
 
-    // Check if there is a queen or a bishop to pin the piece
-    x = row, y = col;
-
-    while (x >= 0 && x < 8 && y >= 0 && y < 8) {
+  // Check for a queen or bishop in the opposite direction
+  x = row;
+  y = col;
+  while (x >= 0 && x < 8 && y >= 0 && y < 8) {
       x += dx;
       y += dy;
-      
-      if (board[x][y] && board[x][y].piece) {
-        if (board[x][y].piece[0] === currentPlayer) {
-          return false;
-        } else if (board[x][y].piece[1] === 'b' || board[x][y].piece[1] === 'q') {
-          return true;
-        } else {
-          return false;
-        }
+
+      if (x < 0 || x >= 8 || y < 0 || y >= 8) break; // Prevent out-of-bounds access
+
+      if (board[x][y]?.piece) {
+          if (board[x][y].piece[0] === currentPlayer) {
+              return false; // Friendly piece blocking
+          } else if (board[x][y].piece[1] === 'b' || board[x][y].piece[1] === 'q') {
+              return true; // Opponent's bishop or queen pins the piece
+          } else {
+              return false; // Another piece blocks the diagonal
+          }
       }
-    }
-    return false;
+  }
+
+  return false;
 };
+
 export const isThePiecePinnedFromLines = (board, row, col, currentPlayer) => {
   const kingSquare = kingsPosition(board, currentPlayer);
   

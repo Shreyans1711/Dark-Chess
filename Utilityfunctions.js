@@ -5,36 +5,21 @@ import { getKnightMoves, canKnightAttack } from "./Pieces/Knight/Knight";
 import { getQueenMoves, canQueenAttack } from "./Pieces/Queen/Queen";
 import { getPawnMoves, canPawnAttack } from "./Pieces/Pawn/Pawn";
 
-let piecesName = {
-  'wr' : ['wr', 'wr'],
-  'wn' : ['wn', 'wn'],
-  'wb' : ['wb', 'wb'],
-  'wk' : ['wk'],
-  'wq' : ['wq'],
-  'wp' : ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-  'br' : ['br', 'br'],
-  'bn' : ['bn', 'bn'],
-  'bb' : ['bb', 'bb'],
-  'bk' : ['bk'],
-  'bq' : ['bq'],
-  'bp' : ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-}
-
 // Show the piece on the board
 export const showPiece = (row, col) => {
   let piece = null;
   if (row === 0 || row === 7) {
     const isWhite = row === 7;
     const pieces = isWhite
-      ? [piecesName['wr'][0], piecesName['wn'][0], piecesName['wb'][0], piecesName['wq'][0], piecesName['wk'][0], piecesName['wb'][1], piecesName['wn'][1], piecesName['wr'][1]]
-      : [piecesName['br'][0], piecesName['bn'][0], piecesName['bb'][0], piecesName['bq'][0], piecesName['bk'][0], piecesName['bb'][1], piecesName['bn'][1], piecesName['br'][1]];
+      ? ['wr', 'wn', 'wb', 'wq','wk', 'wb', 'wn', 'wr']
+      : ['br', 'bn', 'bb', 'bq','bk', 'bb', 'bn', 'br'];
     piece = pieces[col];
   }
   if (row === 1 || row === 6) {
     const isWhite = row === 6;
     const pieces = isWhite
-    ? [piecesName['wp'][0], piecesName['wp'][1], piecesName['wp'][2], piecesName['wp'][3], piecesName['wp'][4], piecesName['wp'][5], piecesName['wp'][6], piecesName['wp'][7]]
-    : [piecesName['bp'][0], piecesName['bp'][1], piecesName['bp'][2], piecesName['bp'][3], piecesName['bp'][4], piecesName['bp'][5], piecesName['bp'][6], piecesName['bp'][7]];
+    ? ['wp','wp','wp','wp','wp','wp','wp','wp']
+    : ['bp','bp','bp','bp','bp','bp','bp','bp'];
   piece = pieces[col];
   }
   return piece;
@@ -238,7 +223,6 @@ export const getAllMoves = (board, currentPlayer, lastMove, AllMovesTillNow) => 
     return moves;
   }
 
-  console.log(board)
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       const piece = board[row][col].piece;
@@ -324,7 +308,6 @@ const canPieceAttackSquare = (piece, fromRow, fromCol, toRow, toCol, board) => {
 
 export const hasAPieceMoved = (piece, AllMovesTillNow) => {
   if (!Array.isArray(AllMovesTillNow)) {
-    console.warn('AllMovesTillNow is not an array:', AllMovesTillNow);
     return false;
   }
   return AllMovesTillNow.some((move) => move.id === piece.id);
