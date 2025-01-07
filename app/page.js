@@ -167,7 +167,7 @@ export default function Home() {
         <div>
           {['q', 'r', 'b', 'n'].map((piece) => (
             <button key={piece} onClick={() => setpromotedPiece(piece)}>
-              <img src={`/assets/w${piece}.png`} alt={piece} width={50} height={50} />
+              <img src={`/assets/${currentTurn}${piece}.png`} alt={piece} width={50} height={50} />
             </button>
           ))}
         </div>

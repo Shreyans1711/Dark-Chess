@@ -4,7 +4,6 @@ function gcd(a, b) {if (b === 0) { return a; } return gcd(b, a % b);}
 
 export const isThePiecePinnedFromDiagonal = (board, row, col, currentPlayer) => {
   const kingSquare = kingsPosition(board, currentPlayer);
-  
   // Check if the target piece is on a diagonal with the king
   const isOnDiagonal = Math.abs(row - kingSquare.row) === Math.abs(col - kingSquare.col);
   if (!isOnDiagonal) {
@@ -19,14 +18,13 @@ export const isThePiecePinnedFromDiagonal = (board, row, col, currentPlayer) => 
 
   // Check if something is in between the piece and the king
   let x = row, y = col;
-  while (x !== kingSquare.row || y !== kingSquare.col) {
+  while (x !== kingSquare.row && y !== kingSquare.col) {
       x -= dx;
       y -= dy;
-
       if (x < 0 || x >= 8 || y < 0 || y >= 8) break; // Prevent out-of-bounds access
 
       if (board[x][y]?.piece) {
-          if (board[x][y].piece[1] !== 'k' && board[x][y].piece[0] !== currentPlayer) {
+          if (board[x][y].piece[1] !== 'k') {
               return false; // Another piece blocking the diagonal
           }
       }

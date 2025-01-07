@@ -1,4 +1,5 @@
 import {isThePiecePinnedFromDiagonal, isThePiecePinnedFromLines} from "../../Concepts/Pinning"
+import { kingsPosition } from "../King/King";
 
 export const getRookMoves = (row, col, board,  currentPlayer) => {
   const moves = [];

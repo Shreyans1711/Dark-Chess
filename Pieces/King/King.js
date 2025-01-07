@@ -49,11 +49,12 @@ export const kingsPosition = (board, currentPlayer) => {
 }
 
 const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
+    console.log(AllMovesTillNow)
     const kingRow = currentPlayer === 'w' ? 7 : 0; // White king on row 7, black king on row 0
     const kingCol = 4; // King's initial column
-    
+    const kingSquare = kingsPosition(board, currentPlayer);
     // Check if the king has moved
-    if (hasAPieceMoved(currentPlayer + 'k', AllMovesTillNow)) return { shortCastle: false, longCastle: false };
+    if (hasAPieceMoved(board[kingSquare.row][kingSquare.col], AllMovesTillNow)) return { shortCastle: false, longCastle: false };
 
     // Short Castle (King-Side)
     let shortCastle = true;
@@ -81,7 +82,7 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
     ) {
         longCastle = false;
     }
-
+    console.log({ shortCastle, longCastle })
     return { shortCastle, longCastle };
 };
 
