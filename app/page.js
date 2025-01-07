@@ -158,6 +158,7 @@ export default function Home() {
         onClick={() => {
           setChessBoard(createBoardData());
           setCurrentTurn("w");
+          AllMovesTillNow = [];
         }}
         className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl font-medium rounded-lg text-sm px-5 py-2.5"
       >
