@@ -1,7 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { createBoardData, getAllMoves } from "../Utilityfunctions";
+import { createBoardData, getAllMoves, isTheSquareSafe } from "../Utilityfunctions";
 import Image from "next/image";
+import { kingsPosition } from "@/Pieces/King/King";
+import Stalemate from "@/Concepts/Stalemate";
+import CheckMate from "@/Concepts/CheckMate";
 
 const pieces = {
   bb: "/assets/bb.png",
@@ -27,6 +30,7 @@ export default function Home() {
   const [lastMove, setlastMove] = useState({ initialRow: null, initialCol: null, finalRow: null, finalCol: null });
   const [prom, setprom] = useState(false);
   const [promotedPiece, setpromotedPiece] = useState(null);
+  const [result, setresult] = useState(null)
 
   // Finding all Possible moves in the position for the current turn player
   const movesPossible = useRef(getAllMoves(chessBoard, currentTurn, lastMove, AllMovesTillNow));
@@ -39,6 +43,20 @@ export default function Home() {
 
   useEffect(() => {
     movesPossible.current = getAllMoves(chessBoard, currentTurn, lastMove, AllMovesTillNow);
+    const kingSquare = kingsPosition(chessBoard, currentTurn);
+
+    console.log(currentTurn + 'k_' + kingSquare.row + '_' + kingSquare.col)
+    console.log(movesPossible.current)
+
+    if (Object.keys(movesPossible.current).length === 1 && movesPossible.current[currentTurn + 'k_' + kingSquare.row + '_' + kingSquare.col].length === 0) {
+      console.log('Hi')
+      if (isTheSquareSafe(kingSquare.row, kingSquare.col, chessBoard, currentTurn)) {
+        setresult((currentTurn === 'w') ? 'b' : 'w');
+      } 
+    }
+    if (Object.keys(movesPossible.current).length === 0) {
+      setresult('d');
+    }
   }, [chessBoard, currentTurn]);
 
   useEffect(() => {
@@ -153,12 +171,20 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen flex justify-center items-center gap-10">
-      <div>{renderBoard()}</div>
+      { result === null && <div>{renderBoard()}</div>}
+      {result === 'd' && 
+        <Stalemate/>
+      } 
+      {
+        (result === 'w' || result === 'b') && 
+        <CheckMate result = {result}/>
+      }
       <button
         onClick={() => {
           setChessBoard(createBoardData());
           setCurrentTurn("w");
           AllMovesTillNow = [];
+          setresult(null)
         }}
         className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl font-medium rounded-lg text-sm px-5 py-2.5"
       >

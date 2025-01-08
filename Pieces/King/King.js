@@ -49,16 +49,15 @@ export const kingsPosition = (board, currentPlayer) => {
 }
 
 const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
-    console.log(AllMovesTillNow)
     const kingRow = currentPlayer === 'w' ? 7 : 0; // White king on row 7, black king on row 0
     const kingCol = 4; // King's initial column
-    const kingSquare = kingsPosition(board, currentPlayer);
     // Check if the king has moved
-    if (hasAPieceMoved(board[kingSquare.row][kingSquare.col], AllMovesTillNow)) return { shortCastle: false, longCastle: false };
+    
+    if (!Array.isArray(AllMovesTillNow) || AllMovesTillNow.some((move) => move.piece === (currentPlayer + 'k'))) return { shortCastle: false, longCastle: false };
 
     // Short Castle (King-Side)
     let shortCastle = true;
-    if (hasAPieceMoved(currentPlayer + 'r', AllMovesTillNow)) shortCastle = false;
+    if (AllMovesTillNow.some((move) => {(move.piece === currentPlayer + 'r') && (move.initialRow === kingRow) && (move.initialCOl === 7)})) shortCastle = false;
     if (
         board[kingRow][5].piece || 
         board[kingRow][6].piece || 
@@ -71,7 +70,7 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
 
     // Long Castle (Queen-Side)
     let longCastle = true;
-    if (hasAPieceMoved(currentPlayer + 'r', AllMovesTillNow)) longCastle = false;
+    if (AllMovesTillNow.some((move) => {(move.piece === currentPlayer + 'r') && (move.initialRow === kingRow) && (move.initialCOl === 0)})) longCastle = false;
     if (
         board[kingRow][1].piece || 
         board[kingRow][2].piece || 
@@ -82,7 +81,6 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
     ) {
         longCastle = false;
     }
-    console.log({ shortCastle, longCastle })
     return { shortCastle, longCastle };
 };
 

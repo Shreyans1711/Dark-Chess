@@ -305,10 +305,3 @@ const canPieceAttackSquare = (piece, fromRow, fromCol, toRow, toCol, board) => {
       return false;
   }
 };
-
-export const hasAPieceMoved = (piece, AllMovesTillNow) => {
-  if (!Array.isArray(AllMovesTillNow)) {
-    return false;
-  }
-  return AllMovesTillNow.some((move) => move.id === piece.id);
-};
