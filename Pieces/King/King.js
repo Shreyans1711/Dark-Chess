@@ -1,5 +1,5 @@
 import { isTheSquareSafe, hasAPieceMoved } from "@/Utilityfunctions";
-
+// function to find all possible moves of king
 export const getKingMoves = (row, col, board, currentPlayer, AllMovesTillNow) => {
     const moves = [];
     const directions = [
@@ -26,13 +26,13 @@ export const getKingMoves = (row, col, board, currentPlayer, AllMovesTillNow) =>
     }
     return moves;
 };
-
+// function to check if a piece on fromRow, fromCol can attack a piece on toRow, toCol
 export const canKingAttack = (fromRow, fromCol, toRow, toCol) => {
     const rowDiff = Math.abs(fromRow - toRow);
     const colDiff = Math.abs(fromCol - toCol);
     return rowDiff <= 1 && colDiff <= 1;
 };
-
+// function to find position of king
 export const kingsPosition = (board, currentPlayer) => {
     let kingSquare = { row: null, col: null };
     for (let row = 0; row < 8; row++) {

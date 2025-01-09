@@ -2,6 +2,8 @@ import { isThePiecePinnedFromDiagonal, isThePiecePinnedFromLines } from "../../C
 import { getRookMoves, canRookAttack } from "../Rook/Rook";
 import { getBishopMoves, canBishopAttack } from "../Bishop/Bishop";
 
+// Check Queen moves
+
 export const getQueenMoves = (row, col, board, currentPlayer) => {
     const moves = [];
     if (isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
@@ -91,6 +93,9 @@ export const getQueenMoves = (row, col, board, currentPlayer) => {
     }
     return [...getRookMoves(row, col, board, currentPlayer), ...getBishopMoves(row, col, board, currentPlayer)];
 };
+
+// check if Queen can attack from to to
+
 export const canQueenAttack = (fromRow, fromCol, toRow, toCol, board) => {
     return (
         canRookAttack(fromRow, fromCol, toRow, toCol, board) ||

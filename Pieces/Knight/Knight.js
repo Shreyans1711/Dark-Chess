@@ -1,7 +1,8 @@
 import { isThePiecePinnedFromDiagonal, isThePiecePinnedFromLines } from "../../Concepts/Pinning"
-
+// function to find moves to knight
 export const getKnightMoves = (row, col, board, currentPlayer) => {
     const moves = [];
+    // if a knight is pinned then it will not be able to move
     if (isThePiecePinnedFromDiagonal(board, row, col, currentPlayer) || isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
         return moves;
     }
@@ -19,7 +20,7 @@ export const getKnightMoves = (row, col, board, currentPlayer) => {
     }
     return moves;
 };
-
+// function to find that knight on from can attack to
 export const canKnightAttack = (fromRow, fromCol, toRow, toCol) => {
     const rowDiff = Math.abs(fromRow - toRow);
     const colDiff = Math.abs(fromCol - toCol);

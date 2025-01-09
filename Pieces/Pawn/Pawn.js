@@ -61,7 +61,7 @@ export const getPawnMoves = (row, col, board, lastMove, currentPlayer) => {
     }
     return moves;
 };
-
+// function to check if pawn can attack from to to
 export const canPawnAttack = (fromRow, fromCol, toRow, toCol, color) => {
     const direction = color === 'w' ? -1 : 1;
     return (

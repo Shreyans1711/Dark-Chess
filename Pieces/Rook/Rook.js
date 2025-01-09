@@ -3,9 +3,11 @@ import { kingsPosition } from "../King/King";
 
 export const getRookMoves = (row, col, board,  currentPlayer) => {
   const moves = [];
+  // if a rook is pinned on diagonal then it won't be able to move
   if (isThePiecePinnedFromDiagonal(board, row, col, currentPlayer)) {
     return moves;
   }
+  // if a rook is pinned on lines then it will move only in the pinned file/rank
   if (isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
     const kingSquare = kingsPosition(board, currentPlayer);
   
@@ -78,6 +80,8 @@ export const getRookMoves = (row, col, board,  currentPlayer) => {
   }
   return moves;
 };
+
+// can rook attack from to to
 
 export const canRookAttack = (fromRow, fromCol, toRow, toCol, board) => {
   if (fromRow === toRow) {

@@ -42,7 +42,7 @@ export const createBoardData = () => {
   }
   return board;
 };
-
+// Find All Moves in brute force method
 export const getAllMoves = (board, currentPlayer, lastMove, AllMovesTillNow) => {
   const moves = {};
   let squaresAttackedByTheCheckingPiece = [];

@@ -2,12 +2,14 @@ import {isThePiecePinnedFromDiagonal, isThePiecePinnedFromLines} from "../../Con
 
 export const getBishopMoves = (row, col, board, currentPlayer) => {
   const moves = [];
+  // if bishop is pinned from a rook or queen horizontally or vertically
   if (isThePiecePinnedFromLines(board, row, col, currentPlayer)) {
     return moves;
   } 
   const directions = [
     [1, 1], [1, -1], [-1, 1], [-1, -1]
   ];
+  // if bishop is pinned in diagonal then it will be able to move on the same diagonal
   if (isThePiecePinnedFromDiagonal(board, row, col, currentPlayer)) {
     const kingSquare = kingsPosition(board, currentPlayer);
 
@@ -38,6 +40,7 @@ export const getBishopMoves = (row, col, board, currentPlayer) => {
     
     return moves;
   }
+  // return the moves when it is not pinned
   for (const [dx, dy] of directions) {
     let newRow = row + dx, newCol = col + dy;
     while (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
