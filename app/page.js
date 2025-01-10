@@ -49,10 +49,6 @@ export default function Home() {
   useEffect(() => {
     movesPossible.current = getAllMoves(chessBoard, currentTurn, lastMove, AllMovesTillNow);
     const kingSquare = kingsPosition(chessBoard, currentTurn);
-
-    console.log(currentTurn + 'k_' + kingSquare.row + '_' + kingSquare.col);
-    console.log(movesPossible.current);
-
     // Check for checkmate
     if (
       Object.keys(movesPossible.current).length === 1 &&
@@ -109,6 +105,8 @@ export default function Home() {
     // Capture the piece at the target square (if any)
     if (newBoard[targetRow][targetCol].piece) {
       handleCapture(targetRow, targetCol, newBoard);
+    }else if (movingPiece[1] === 'p' && Math.abs(targetRow - position.row) === 1 && Math.abs(targetCol - position.col) === 1) {
+      handleCapture(position.row, targetCol, newBoard);
     }
 
     // Pawn Promotion Logic
