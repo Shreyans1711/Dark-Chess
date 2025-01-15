@@ -56,14 +56,21 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
     if (!Array.isArray(AllMovesTillNow) || AllMovesTillNow.some((move) => move.piece === (currentPlayer + 'k'))) return { shortCastle: false, longCastle: false };
 
     // Short Castle (King-Side)
+
+    console.log((isTheSquareSafe(kingRow, kingCol, board, currentPlayer).length === 0));
+    console.log((isTheSquareSafe(kingRow, 5, board, currentPlayer).length === 0));
+    console.log((isTheSquareSafe(kingRow, 6, board, currentPlayer).length === 0))
+    console.log(board[kingRow][5].piece)
+    console.log(board[kingRow][6].piece)
+
     let shortCastle = true;
     if (AllMovesTillNow.some((move) => {(move.piece === currentPlayer + 'r') && (move.initialRow === kingRow) && (move.initialCOl === 7)})) shortCastle = false;
     if (
         board[kingRow][5].piece || 
         board[kingRow][6].piece || 
-        isTheSquareSafe(kingRow, kingCol, board, currentPlayer).length === 0 ||
-        isTheSquareSafe(kingRow, 5, board, currentPlayer).length === 0 ||
-        isTheSquareSafe(kingRow, 6, board, currentPlayer).length === 0
+        (isTheSquareSafe(kingRow, kingCol, board, currentPlayer).length !== 0) ||
+        (isTheSquareSafe(kingRow, 5, board, currentPlayer).length !== 0) ||
+        (isTheSquareSafe(kingRow, 6, board, currentPlayer).length !== 0)
     ) {
         shortCastle = false;
     }
@@ -75,12 +82,15 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
         board[kingRow][1].piece || 
         board[kingRow][2].piece || 
         board[kingRow][3].piece || 
-        isTheSquareSafe(kingRow, kingCol,board, currentPlayer).length === 0 ||
-        isTheSquareSafe(kingRow, 2,board, currentPlayer).length === 0 ||
-        isTheSquareSafe(kingRow, 3,board, currentPlayer).length === 0
+        (isTheSquareSafe(kingRow, kingCol,board, currentPlayer).length !== 0) ||
+        (isTheSquareSafe(kingRow, 2,board, currentPlayer).length !== 0) ||
+        (isTheSquareSafe(kingRow, 3,board, currentPlayer).length !== 0)
     ) {
         longCastle = false;
     }
+
+    console.log({ shortCastle, longCastle })
+
     return { shortCastle, longCastle };
 };
 
