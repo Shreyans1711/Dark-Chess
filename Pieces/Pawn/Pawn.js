@@ -56,7 +56,6 @@ export const getPawnMoves = (row, col, board, lastMove, currentPlayer) => {
             lastMove.initialRow === (startRow === 1 ? 6 : 1)
         ) {
             moves.push([newRow, captureCol]);
-            console.log("En passant move detected!");
         }
     }
     return moves;

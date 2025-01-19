@@ -57,11 +57,6 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
 
     // Short Castle (King-Side)
 
-    console.log((isTheSquareSafe(kingRow, kingCol, board, currentPlayer).length === 0));
-    console.log((isTheSquareSafe(kingRow, 5, board, currentPlayer).length === 0));
-    console.log((isTheSquareSafe(kingRow, 6, board, currentPlayer).length === 0))
-    console.log(board[kingRow][5].piece)
-    console.log(board[kingRow][6].piece)
 
     let shortCastle = true;
     if (AllMovesTillNow.some((move) => {(move.piece === currentPlayer + 'r') && (move.initialRow === kingRow) && (move.initialCOl === 7)})) shortCastle = false;
@@ -88,8 +83,6 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
     ) {
         longCastle = false;
     }
-
-    console.log({ shortCastle, longCastle })
 
     return { shortCastle, longCastle };
 };
