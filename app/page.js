@@ -206,15 +206,46 @@ export default function Home() {
 
     if (!validMove) return; // Ignore invalid moves
     setlastMove({ initialRow: position.row, initialCol: position.col, finalRow: targetRow, finalCol: targetCol });
-    AllMovesTillNow.push({
+    handleMove(piece, position, targetRow, targetCol); // Execute the move
+    let cntOfPieces = 0;
+
+    for (let r = 0;r < 8;r++) {
+      for (let c = 0;c < 8;c++) {
+        if (chessBoard[r][c] && chessBoard[r][c].piece) cntOfPieces++;
+      }
+    }
+    AllMovesTillNow.push({ // push_back in the All moves array
       piece: piece.piece,
       id: piece.id,
       initialRow: position.row,
       initialCol: position.col,
       finalRow: targetRow,
       finalCol: targetCol,
+      cntOfPieces:cntOfPieces,
     });
-    handleMove(piece, position, targetRow, targetCol); // Execute the move
+    
+    if (AllMovesTillNow.length >= 100) {
+      let move = AllMovesTillNow.length - 1;
+      let counter = 100;
+      let is50MoveRule = true;
+      let cntOfPiecesFromStart = AllMovesTillNow[move].cntOfPieces;
+      while (counter > 0) {
+        if(AllMovesTillNow[move].piece[1] === 'p') {
+          is50MoveRule = false;
+          break;
+        }
+        if (AllMovesTillNow[move].cntOfPieces != cntOfPiecesFromStart) {
+          is50MoveRule = false;
+          break;
+        }
+        move--;
+        counter--;
+      }
+
+      if (is50MoveRule) {
+        setresult('d');
+      }
+    }
   };
 
   // Renders the chessboard
@@ -263,8 +294,8 @@ export default function Home() {
       {isGameStarted && result === null && <div>{renderBoard()}</div>}
       {isGameStarted && result === null && (
         <div className="flex justify-between w flex-col gap-10">
-          <div className="text-lg font-bold bg-black">White: {formatTime(whiteTime)}</div>
           <div className="text-lg font-bold bg-black">Black: {formatTime(blackTime)}</div>
+          <div className="text-lg font-bold bg-black">White: {formatTime(whiteTime)}</div>
         </div>
       )}
 

@@ -6,25 +6,53 @@ export const getKingMoves = (row, col, board, currentPlayer, AllMovesTillNow) =>
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
     ];
+
+    // Handle castling
     const castle = canKingCastle(board, currentPlayer, AllMovesTillNow);
     if (castle.shortCastle) {
-        moves.push([row, 6]);
+        moves.push([row, 6]); // Short castle
+    }
+    if (castle.longCastle) {
+        moves.push([row, 2]); // Long castle
     }
 
-    if (castle.longCastle) {
-        moves.push([row, 2]);
-    }
+    // Loop through all possible king moves
     for (const [dx, dy] of directions) {
-        let newRow = row + dx, newCol = col + dy;
+        const newRow = row + dx;
+        const newCol = col + dy;
+
+        // Ensure move is within bounds
         if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
-            if (!board[newRow][newCol].piece || board[newRow][newCol].piece[0] !== board[row][col].piece[0]) {
-                if (isTheSquareSafe(newRow, newCol, board, currentPlayer).length === 0) {
+            const targetCell = board[newRow][newCol];
+
+            // Check if the target cell is empty or has an opponent's piece
+            if (!targetCell.piece || targetCell.piece[0] !== board[row][col].piece[0]) {
+                // Simulate the move
+                const newBoard = simulateMove(board, row, col, newRow, newCol);
+
+                // Check if the king would still be in check after the move
+                if (isTheSquareSafe(newRow, newCol, newBoard, currentPlayer).length === 0) {
                     moves.push([newRow, newCol]);
                 }
             }
         }
     }
+
     return moves;
+};
+
+// Helper function to simulate a move
+const simulateMove = (board, startRow, startCol, endRow, endCol) => {
+    // Create a deep copy of the board to simulate the move
+    const newBoard = board.map(row => row.map(cell => ({ ...cell })));
+
+    // Move the piece to the target square
+    newBoard[endRow][endCol].piece = newBoard[startRow][startCol].piece;
+
+    // Empty the original square
+    newBoard[startRow][startCol].piece = null;
+
+    return newBoard;
 };
 // function to check if a piece on fromRow, fromCol can attack a piece on toRow, toCol
 export const canKingAttack = (fromRow, fromCol, toRow, toCol) => {
