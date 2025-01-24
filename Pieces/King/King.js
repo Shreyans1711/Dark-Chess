@@ -93,7 +93,8 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
         board[kingRow][6].piece || 
         (isTheSquareSafe(kingRow, kingCol, board, currentPlayer).length !== 0) ||
         (isTheSquareSafe(kingRow, 5, board, currentPlayer).length !== 0) ||
-        (isTheSquareSafe(kingRow, 6, board, currentPlayer).length !== 0)
+        (isTheSquareSafe(kingRow, 6, board, currentPlayer).length !== 0) ||
+        (board[kingRow][7].piece && board[kingRow][7].piece[1] !== 'r')
     ) {
         shortCastle = false;
     }
@@ -107,7 +108,8 @@ const canKingCastle = (board, currentPlayer, AllMovesTillNow) => {
         board[kingRow][3].piece || 
         (isTheSquareSafe(kingRow, kingCol,board, currentPlayer).length !== 0) ||
         (isTheSquareSafe(kingRow, 2,board, currentPlayer).length !== 0) ||
-        (isTheSquareSafe(kingRow, 3,board, currentPlayer).length !== 0)
+        (isTheSquareSafe(kingRow, 3,board, currentPlayer).length !== 0) ||
+        (board[kingRow][0].piece && board[kingRow][0].piece[1] !== 'r')
     ) {
         longCastle = false;
     }

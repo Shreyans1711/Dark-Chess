@@ -197,7 +197,7 @@ export default function Home() {
   const handleDrop = (targetRow, targetCol) => {
     if (!isGameStarted || !draggedInfo) return; // Prevent dropping if game hasn't started
     const { piece, position } = draggedInfo;
-    if (position.row === targetRow && position.col === targetCol) return; // No move if dropped on the same square
+    if ( position.row === targetRow && position.col === targetCol) return; // No move if dropped on the same square
 
     const key = `${piece.piece}_${position.row}_${position.col}`;
     const validMove = movesPossible.current[key]?.find((move) => {

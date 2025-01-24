@@ -1,7 +1,7 @@
 import { isThePiecePinnedFromDiagonal, isThePiecePinnedFromLines } from "../../Concepts/Pinning"
 import { getRookMoves, canRookAttack } from "../Rook/Rook";
 import { getBishopMoves, canBishopAttack } from "../Bishop/Bishop";
-
+import { kingsPosition } from "../King/King";
 // Check Queen moves
 
 export const getQueenMoves = (row, col, board, currentPlayer) => {
