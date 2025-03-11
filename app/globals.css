@@ -1,3 +1,40 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans&display=swap');
+@import "tailwindcss";
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.App {
+  display: grid;
+  place-content: center;
+  height: 100vh;
+  background: var(--bg-color);
+  font-family: 'Sofia Sans', sans-serif;
+  grid-template-columns: auto 220px;
+}
+
+button {
+  background: var(--dark-tile);
+  color: var(--light-tile);
+  border: none;
+  padding: 10px 30px;
+  margin: 10px 0;
+  font-size: 1.1em;
+}
+
+:root {
+  --tile-size: 100px;
+  --light-tile: #F0D8B6;
+  --dark-tile: #B48764;
+  --bg-color: #202020;
+  --highlight: rgba(0, 0, 0, 0.1);
+  --check: #FEEC48;
+}
+
+@media all and (max-width: 450px) {
+  :root {
+    --tile-size: 50px;
+  }
+}
