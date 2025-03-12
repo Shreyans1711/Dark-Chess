@@ -26,8 +26,8 @@ button {
 
 :root {
   --tile-size: 100px;
-  --light-tile: #F0D8B6;
-  --dark-tile: #B48764;
+  --light-tile: #ebecd0;
+  --dark-tile: #739552;
   --bg-color: #202020;
   --highlight: rgba(0, 0, 0, 0.1);
   --check: #FEEC48;
