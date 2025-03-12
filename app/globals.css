@@ -25,7 +25,7 @@ button {
 }
 
 :root {
-  --tile-size: 100px;
+  --tile-size: 75px;
   --light-tile: #ebecd0;
   --dark-tile: #739552;
   --bg-color: #202020;
